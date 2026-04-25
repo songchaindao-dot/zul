@@ -1,0 +1,74 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="flowerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Circle background -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGradient)" opacity="0.95"/>
+  <circle cx="100" cy="100" r="90" fill="white" opacity="0.1"/>
+  
+  <!-- Flower petals (Cattleya orchid style) -->
+  <!-- Left petal -->
+  <ellipse cx="70" cy="80" rx="18" ry="35" fill="url(#flowerGradient)" opacity="0.9" transform="rotate(-45 70 80)"/>
+  
+  <!-- Right petal -->
+  <ellipse cx="130" cy="80" rx="18" ry="35" fill="url(#flowerGradient)" opacity="0.9" transform="rotate(45 130 80)"/>
+  
+  <!-- Top petal -->
+  <ellipse cx="100" cy="50" rx="18" ry="35" fill="url(#flowerGradient)" opacity="0.95"/>
+  
+  <!-- Bottom left petal -->
+  <ellipse cx="80" cy="125" rx="16" ry="30" fill="url(#flowerGradient)" opacity="0.85" transform="rotate(-60 80 125)"/>
+  
+  <!-- Bottom right petal -->
+  <ellipse cx="120" cy="125" rx="16" ry="30" fill="url(#flowerGradient)" opacity="0.85" transform="rotate(60 120 125)"/>
+  
+  <!-- Center flower -->
+  <circle cx="100" cy="95" r="22" fill="#f59e0b" opacity="0.95"/>
+  <circle cx="100" cy="95" r="18" fill="#fbbf24"/>
+  
+  <!-- Heart in center -->
+  <!-- Heart shape -->
+  <path d="M 100 105 
+           C 95 115, 85 115, 85 105 
+           C 85 100, 88 95, 95 95
+           C 98 95, 100 97, 100 97
+           C 100 97, 102 95, 105 95
+           C 112 95, 115 100, 115 105
+           C 115 115, 105 115, 100 105 Z" 
+        fill="#ec4899" opacity="0.9"/>
+  
+  <!-- Sparkles around flower -->
+  <!-- Top left sparkle -->
+  <g opacity="0.8">
+    <line x1="60" y1="60" x2="65" y2="65" stroke="white" stroke-width="2"/>
+    <line x1="62" y1="63" x2="68" y2="63" stroke="white" stroke-width="2"/>
+  </g>
+  
+  <!-- Top right sparkle -->
+  <g opacity="0.8">
+    <line x1="140" y1="60" x2="135" y2="65" stroke="white" stroke-width="2"/>
+    <line x1="138" y1="63" x2="132" y2="63" stroke="white" stroke-width="2"/>
+  </g>
+  
+  <!-- Bottom sparkle -->
+  <g opacity="0.7">
+    <line x1="100" y1="145" x2="105" y2="150" stroke="white" stroke-width="2"/>
+    <line x1="102" y1="148" x2="108" y2="148" stroke="white" stroke-width="2"/>
+  </g>
+  
+  <!-- Chat bubble hint -->
+  <path d="M 110 140 L 120 150 L 115 145 Z" fill="white" opacity="0.6"/>
+  
+  <!-- Outer ring -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="white" stroke-width="3" opacity="0.3"/>
+</svg>
