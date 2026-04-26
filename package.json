@@ -1,0 +1,34 @@
+{
+  "name": "cattleya",
+  "version": "1.0.0",
+  "description": "Cattleya — secure bilingual messenger for couples 💕",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "dev:api": "node dev-server.mjs",
+    "dev:frontend": "cd zul && npm run dev"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.38.4",
+    "axios": "^1.6.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^1.4.5-lts.1",
+    "twilio": "^4.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "vite": "^8.0.10"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

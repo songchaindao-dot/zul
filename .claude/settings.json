@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:3000/api/rooms/create -H \"Content-Type: application/json\" -H \"X-Zul-Client-Id: test-abc\")",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/rooms/join?room=AQE5H7&t=2cb227ca-6d83-47cc-86ff-5ec0a17699a6\" -H \"Content-Type: application/json\" -H \"X-Zul-Client-Id: test-abc\" -d '{\"display_name\":\"IMan\",\"language\":\"en\",\"emoji_avatar\":\"💕\"}')",
+      "Bash(taskkill /PID 12160 /F)",
+      "PowerShell(Stop-Process -Id 12160 -Force)",
+      "Bash(curl -s -X POST http://localhost:3000/api/rooms/create -H \"Content-Type: application/json\" -H \"X-Zul-Client-Id: test-xyz\")",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/rooms/join?room=X4L3T4&t=6368d832-1765-4fec-95d5-6fb2300a8840\" -H \"Content-Type: application/json\" -H \"X-Zul-Client-Id: test-xyz\" -d '{\"display_name\":\"IMan\",\"language\":\"en\",\"emoji_avatar\":\"💕\"}')",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/messages/send?room=X4L3T4&t=6368d832-1765-4fec-95d5-6fb2300a8840\" -H \"Content-Type: application/json\" -H \"X-Zul-Client-Id: test-xyz\" -d '{\"text\":\"Hello Zuleima\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5176)",
+      "Bash(node -e ' *)",
+      "Bash(identify \"c:/Users/7 RECORDS/Downloads/app/zul/src/assets/IMan and Zul.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"Frontend: %{http_code}\" http://localhost:5176)"
+    ]
+  }
+}
