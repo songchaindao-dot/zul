@@ -298,6 +298,12 @@ export default function App() {
     };
   }, [roomId, roomCode, secretToken, view]);
 
+  useEffect(() => {
+    if (!error || view !== 'chat') return;
+    const timer = setTimeout(() => setError(''), 5000);
+    return () => clearTimeout(timer);
+  }, [error, view]);
+
   async function loadMessages() {
     if (!roomCode || !secretToken) return;
     try {
@@ -396,6 +402,8 @@ export default function App() {
     e.preventDefault();
     const text = messageInput.trim();
     if (!text || !roomId) return;
+    const draft = text;
+    setError('');
     setMessageInput('');
     stopTyping();
     try {
@@ -404,9 +412,15 @@ export default function App() {
         headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
         body: JSON.stringify({ text, original_language: myMember?.language || 'en' }),
       });
-      if (!res.ok) throw new Error('send failed');
-      loadMessages();
-    } catch { setError('Message failed'); }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Message failed');
+      }
+      await loadMessages();
+    } catch (err) {
+      setMessageInput(draft);
+      setError(err?.message || 'Message failed');
+    }
   }
 
   function onInput(val) {
@@ -862,6 +876,12 @@ export default function App() {
               {copied ? <Check size={12} /> : <Copy size={12} />}
               {copied ? 'Copied' : 'Copy'}
             </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="shrink-0 border-b border-red-500/25 bg-red-500/10 px-3.5 py-2 text-xs text-red-200">
+            {error}
           </div>
         )}
 
