@@ -1,13 +1,23 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  console.warn('GEMINI_API_KEY is not configured - translations will fail');
+}
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 const MODEL_CANDIDATES = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
 
+function requireClient() {
+  if (!genAI) throw new Error('GEMINI_API_KEY is not configured');
+  return genAI;
+}
+
 async function generateWithFallback(prompt) {
+  const client = requireClient();
   let lastErr = null;
   for (const name of MODEL_CANDIDATES) {
     try {
-      const model = genAI.getGenerativeModel({ model: name });
+      const model = client.getGenerativeModel({ model: name });
       const result = await model.generateContent(prompt);
       const text = result?.response?.text?.();
       if (text && text.trim()) return text.trim();

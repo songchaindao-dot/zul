@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../_lib/supabase.js';
 import { authenticate } from '../_lib/auth.js';
-import { detectLanguage, translate } from '../_lib/gemini.js';
+import { translateWithDetection } from '../_lib/gemini.js';
 import { methodGuard, readJson } from '../_lib/http.js';
 
 export default async function handler(req, res) {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   const { data: others } = await supabaseAdmin
     .from('members')
-    .select('*')
+    .select('id, language')
     .eq('room_id', room.id)
     .neq('id', member.id);
 
@@ -25,23 +25,36 @@ export default async function handler(req, res) {
   let translation_confidence = null;
   let translation_model = null;
 
-  try {
-    const detected = await detectLanguage(text);
-    original_language = detected.language;
+  const normalizedMemberLang = (member.language || 'en').toLowerCase();
+  const normalizedOtherLang = (other?.language || 'en').toLowerCase();
+  const crossLanguage = Boolean(other && normalizedOtherLang && normalizedOtherLang !== normalizedMemberLang);
 
-    if (other && other.language !== original_language) {
-      const result = await translate(text, other.language);
+  if (text && other) {
+    try {
+      const result = await translateWithDetection(text, other.language);
+      original_language = result.detected_language || 'en';
       translated_text = result.translated;
       translated_language = other.language;
       translation_confidence = result.confidence;
       translation_model = 'gemini';
-    }
-  } catch (err) {
-    if (other && other.language !== original_language) {
-      return res.status(502).json({
-        error: 'Translation failed',
-        detail: err?.message || 'Gemini translation error',
-      });
+
+      // Validate that translation actually changed the text for cross-language conversations
+      const unchangedAcrossLanguages =
+        crossLanguage &&
+        translated_text &&
+        translated_text.trim().toLowerCase() === text.trim().toLowerCase();
+
+      if (unchangedAcrossLanguages) {
+        console.warn('Translation unchanged for cross-language message:', { text, translated: translated_text });
+        // Don't block, but log it as a warning - translation may have failed silently
+        translated_text = null;
+        translation_model = null;
+      }
+    } catch (err) {
+      console.error('Translation/detection failed:', err?.message);
+      // Don't block message sending, but translation will be null
+      translated_text = null;
+      translation_model = null;
     }
   }
 
