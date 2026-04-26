@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../_lib/supabase.js';
 import { authenticate } from '../_lib/auth.js';
-import { detectLanguage, translate } from '../_lib/claude.js';
+import { detectLanguage, translate } from '../_lib/gemini.js';
 import { methodGuard, readJson } from '../_lib/http.js';
 
 export default async function handler(req, res) {
@@ -34,9 +34,16 @@ export default async function handler(req, res) {
       translated_text = result.translated;
       translated_language = other.language;
       translation_confidence = result.confidence;
-      translation_model = 'claude';
+      translation_model = 'gemini';
     }
-  } catch { /* insert anyway */ }
+  } catch (err) {
+    if (other && other.language !== original_language) {
+      return res.status(502).json({
+        error: 'Translation failed',
+        detail: err?.message || 'Gemini translation error',
+      });
+    }
+  }
 
   const { data: message, error } = await supabaseAdmin
     .from('messages')
