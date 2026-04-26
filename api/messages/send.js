@@ -62,14 +62,24 @@ export default async function handler(req, res) {
 
   let translated_text = null;
   let detected_language = original_language || ctx.sender_language || null;
+  let translation_model = null;
 
   if (text && source !== 'file_upload') {
     try {
       const result = await translateWithDetection(text, partnerLang);
       translated_text = result.translated;
       detected_language = result.detected_language || detected_language;
+      if (translated_text && translated_text !== text) {
+        translation_model = 'gemini';
+      }
     } catch (err) {
-      console.error('Translation error:', err);
+      const crossLanguage = partnerMember && partnerLang !== (detected_language || ctx.sender_language);
+      if (crossLanguage) {
+        return res.status(502).json({
+          error: 'Translation failed',
+          detail: err?.message || 'Gemini translation error',
+        });
+      }
     }
   }
 
@@ -86,6 +96,7 @@ export default async function handler(req, res) {
       original_language: detected_language,
       translated_text,
       translated_language: partnerLang,
+      translation_model,
       source: resolvedSource,
       media_url: media_url || null,
       media_mime_type: media_type || null,
