@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
-  ArrowLeft, Check, CheckCheck, ChevronDown, Copy, Globe,
+  ArrowLeft, Check, CheckCheck, ChevronDown, Copy, Download, Globe,
   Link, Mic, Paperclip, Send, X,
 } from 'lucide-react';
 import heroPhoto from './assets/IMan and Zul.jpg';
+import InstallPrompt from './components/InstallPrompt.jsx';
+import { useInstall } from './hooks/useInstall.js';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pnlpivlsxmdctqhcintb.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -182,6 +184,7 @@ function Sidebar({ partner, myMember, shareLink, roomCode, copied, onCopy, onLea
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
+  const { isInstallable, install: triggerInstall } = useInstall();
   const [view, setView] = useState('splash');
 
   const [roomCode, setRoomCode] = useState(null);
@@ -687,10 +690,27 @@ export default function App() {
                            letterSpacing: '0.18em', marginTop: 18, marginBottom: 0 }}>
                 PRIVATE · ENCRYPTED · FREE
               </p>
+
+              {isInstallable && (
+                <button
+                  onClick={triggerInstall}
+                  style={{ width: '100%', borderRadius: 14, padding: '12px 16px',
+                            marginTop: 14, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600,
+                            fontSize: 12, color: '#fff', border: '1px solid rgba(167,139,250,0.4)',
+                            background: 'rgba(88,28,135,0.35)', cursor: 'pointer',
+                            transition: 'all 0.2s', display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', gap: 6 }}
+                  onMouseEnter={(e) => { e.target.style.background = 'rgba(88,28,135,0.55)'; e.target.style.borderColor = 'rgba(167,139,250,0.7)'; }}
+                  onMouseLeave={(e) => { e.target.style.background = 'rgba(88,28,135,0.35)'; e.target.style.borderColor = 'rgba(167,139,250,0.4)'; }}
+                >
+                  <Download size={14} /> Download App to Home Screen
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
+      <InstallPrompt />
     );
   }
 
@@ -954,6 +974,7 @@ export default function App() {
           </footer>
         )}
       </div>
+      <InstallPrompt />
     </div>
   );
 }
