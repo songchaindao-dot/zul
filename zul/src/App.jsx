@@ -428,15 +428,28 @@ export default function App() {
     if (val.length > 0) startTyping(); else stopTyping();
   }
 
+  async function sendTypingState(isTyping) {
+    if (!roomCode || !secretToken) return;
+    try {
+      await fetch(`/api/typing?room=${encodeURIComponent(roomCode)}&t=${encodeURIComponent(secretToken)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
+        body: JSON.stringify({ is_typing: isTyping }),
+      });
+    } catch {
+      // Typing is best-effort; ignore transient failures.
+    }
+  }
+
   function startTyping() {
-    supabase.from('typing_events').upsert({ room_id: roomId, client_id: clientId, is_typing: true }).then(() => {});
+    sendTypingState(true);
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(stopTyping, 3000);
   }
 
   function stopTyping() {
     clearTimeout(typingTimeoutRef.current);
-    if (roomId) supabase.from('typing_events').upsert({ room_id: roomId, client_id: clientId, is_typing: false }).then(() => {});
+    if (roomId) sendTypingState(false);
   }
 
   function toggleTranslation(id) {
