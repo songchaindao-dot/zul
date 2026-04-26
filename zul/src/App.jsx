@@ -785,7 +785,7 @@ export default function App() {
   const myIsMe = (msg) => msg.sender_id === myMember?.id;
 
   return (
-    <div className="flex h-[100dvh] bg-[#0a0018]">
+    <div className="flex h-[100svh] min-h-[100svh] w-full overflow-hidden bg-[#0a0018] md:h-[100dvh]">
 
       {/* ── DESKTOP SIDEBAR ── */}
       <Sidebar
@@ -799,10 +799,10 @@ export default function App() {
       />
 
       {/* ── MAIN CHAT COLUMN ── */}
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
         {/* Header */}
-        <header className="shrink-0 flex items-center gap-3 bg-[#12002b] border-b border-violet-900/50 px-4 py-3">
+        <header className="shrink-0 flex items-center gap-3 border-b border-violet-900/50 bg-[#12002b] px-3.5 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4">
           <button onClick={leaveRoom} className="md:hidden text-purple-400 hover:text-white transition">
             <ArrowLeft size={22} />
           </button>
@@ -815,33 +815,33 @@ export default function App() {
                 </div>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#12002b] bg-emerald-400" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">{partner.display_name}</p>
-                <p className="text-xs text-emerald-400">{LANGUAGES.find(l => l.code === partner.language)?.label || partner.language} · online</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold text-white">{partner.display_name}</p>
+                <p className="text-sm text-emerald-400">{LANGUAGES.find(l => l.code === partner.language)?.label || partner.language} · online</p>
               </div>
             </>
           ) : (
             <>
               <div className="h-10 w-10 rounded-full border-2 border-dashed border-violet-700 flex items-center justify-center text-purple-500">?</div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-white">Waiting for your partner…</p>
-                <p className="text-xs text-purple-500">Share your link so they can join</p>
+                <p className="text-base font-semibold text-white">Waiting for your partner…</p>
+                <p className="text-sm text-purple-400">Share your link so they can join</p>
               </div>
             </>
           )}
 
-          <span className="shrink-0 font-mono text-[11px] text-purple-500 bg-purple-900/30 border border-purple-800/30 px-2 py-0.5 rounded-full">
+          <span className="hidden shrink-0 rounded-full border border-purple-800/30 bg-purple-900/30 px-2 py-0.5 font-mono text-[11px] text-purple-400 sm:inline-flex">
             {roomCode}
           </span>
         </header>
 
         {/* Share link banner (mobile, no partner yet) */}
         {!partner && shareLink && (
-          <div className="md:hidden shrink-0 flex items-center gap-2 border-b border-violet-900/30 bg-violet-900/20 px-4 py-2.5">
+          <div className="md:hidden shrink-0 flex items-center gap-2 border-b border-violet-900/30 bg-violet-900/20 px-3.5 py-2.5">
             <Link size={13} className="text-violet-400 shrink-0" />
-            <p className="flex-1 min-w-0 text-xs text-purple-300 truncate font-mono">{shareLink}</p>
+            <p className="min-w-0 flex-1 truncate font-mono text-xs text-purple-300">{shareLink}</p>
             <button onClick={() => copyLink(shareLink)}
-              className="shrink-0 flex items-center gap-1 rounded-lg bg-violet-600/30 px-2.5 py-1 text-xs text-violet-300 hover:bg-violet-600/50 transition">
+              className="shrink-0 flex items-center gap-1 rounded-lg bg-violet-600/30 px-2.5 py-1 text-xs text-violet-200 transition hover:bg-violet-600/50">
               {copied ? <Check size={12} /> : <Copy size={12} />}
               {copied ? 'Copied' : 'Copy'}
             </button>
@@ -850,12 +850,12 @@ export default function App() {
 
         {/* Messages area */}
         <section
-          className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
+          className="flex-1 overflow-y-auto space-y-2 px-2.5 pb-3 pt-3 sm:px-4 sm:pt-4"
           style={{ backgroundImage: 'radial-gradient(ellipse at top, #1a0040 0%, #0a0018 70%)', backgroundAttachment: 'local' }}
         >
           {messages.length === 0 && !partnerTyping && (
             <div className="flex justify-center py-10">
-              <span className="rounded-full border border-violet-800/30 bg-violet-900/20 px-4 py-2 text-[11px] text-purple-400">
+              <span className="rounded-full border border-violet-800/30 bg-violet-900/20 px-4 py-2 text-xs text-purple-300">
                 Auto-translated · Private · Encrypted
               </span>
             </div>
@@ -866,7 +866,7 @@ export default function App() {
             const showTranslation = translatedOpen[msg.id];
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`relative max-w-[75%] md:max-w-[60%] rounded-2xl px-3.5 py-2.5 ${
+                <div className={`relative max-w-[84%] rounded-2xl px-3.5 py-2.5 sm:max-w-[72%] md:max-w-[60%] ${
                   isMe
                     ? 'rounded-tr-sm bg-gradient-to-br from-violet-600 to-fuchsia-700 text-white shadow-lg shadow-violet-900/30'
                     : 'rounded-tl-sm bg-[#1e0845]/80 border border-violet-800/30 text-slate-100 backdrop-blur-sm'
@@ -894,7 +894,7 @@ export default function App() {
                   )}
 
                   {/* Text */}
-                  {msg.original_text && <p className="text-sm leading-relaxed">{msg.original_text}</p>}
+                  {msg.original_text && <p className="text-[15px] leading-relaxed">{msg.original_text}</p>}
 
                   {/* Voice transcript label */}
                   {msg.source === 'mic_recording' && msg.original_text && !isMe && (
@@ -904,20 +904,20 @@ export default function App() {
                   {/* Translation */}
                   {msg.translated_text && msg.source !== 'file_upload' && (
                     <button onClick={() => toggleTranslation(msg.id)}
-                      className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide opacity-50 hover:opacity-100 transition">
+                      className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide opacity-60 transition hover:opacity-100">
                       <Globe size={10} />
                       {showTranslation ? 'Hide' : 'Translate'}
                     </button>
                   )}
 
                   {showTranslation && msg.translated_text && (
-                    <p className="mt-1.5 rounded-xl border border-white/10 bg-black/20 px-2.5 py-2 text-xs leading-relaxed italic text-white/80">
+                    <p className="mt-1.5 rounded-xl border border-white/10 bg-black/20 px-2.5 py-2 text-[13px] leading-relaxed italic text-white/80">
                       {msg.translated_text}
                     </p>
                   )}
 
                   {/* Time + read */}
-                  <div className="mt-1 flex items-center justify-end gap-1 text-[10px] opacity-40">
+                  <div className="mt-1 flex items-center justify-end gap-1 text-[11px] opacity-50">
                     <span>{fmtTime(msg.created_at)}</span>
                     {isMe && (msg.read_by?.length > 0 ? <CheckCheck size={11} /> : <Check size={11} />)}
                   </div>
@@ -948,27 +948,27 @@ export default function App() {
 
         {/* Composer */}
         {!recording && (
-          <footer className="shrink-0 bg-[#12002b] border-t border-violet-900/40 px-3 py-3">
+          <footer className="shrink-0 border-t border-violet-900/40 bg-[#12002b] px-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2.5 sm:px-3 sm:py-3">
             <form onSubmit={sendMessage} className="flex items-center gap-2">
               <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileAttach} accept="*/*" />
               <button type="button" onClick={() => fileInputRef.current?.click()}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-purple-500 hover:text-violet-300 hover:bg-violet-900/30 transition">
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-purple-400 transition hover:bg-violet-900/30 hover:text-violet-200">
                 <Paperclip size={20} />
               </button>
               <input
                 value={messageInput}
                 onChange={(e) => onInput(e.target.value)}
                 placeholder="Write a message…"
-                className="h-10 flex-1 rounded-full border border-violet-800/40 bg-violet-900/20 px-4 text-sm text-white outline-none placeholder:text-purple-600 focus:border-violet-600 focus:bg-violet-900/30 transition"
+                className="h-11 flex-1 rounded-full border border-violet-800/40 bg-violet-900/20 px-4 text-base text-white outline-none placeholder:text-purple-500 focus:border-violet-600 focus:bg-violet-900/30 transition"
               />
               {messageInput.trim() ? (
                 <button type="submit"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-900/40 transition active:scale-95">
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-violet-900/40 transition active:scale-95">
                   <Send size={17} />
                 </button>
               ) : (
                 <button type="button" onClick={startRecording}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-purple-500 hover:text-violet-300 hover:bg-violet-900/30 transition">
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-purple-400 transition hover:bg-violet-900/30 hover:text-violet-200">
                   <Mic size={20} />
                 </button>
               )}
