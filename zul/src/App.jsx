@@ -198,7 +198,6 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState('');
   const [partnerTyping, setPartnerTyping] = useState(false);
-  const [translatedOpen, setTranslatedOpen] = useState({});
 
   const [recording, setRecording] = useState(false);
   const [recSecs, setRecSecs] = useState(0);
@@ -450,10 +449,6 @@ export default function App() {
   function stopTyping() {
     clearTimeout(typingTimeoutRef.current);
     if (roomId) sendTypingState(false);
-  }
-
-  function toggleTranslation(id) {
-    setTranslatedOpen((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
   function copyLink(link) {
@@ -913,18 +908,13 @@ export default function App() {
 
           {messages.map((msg) => {
             const isMe = myIsMe(msg);
-            const showTranslation = translatedOpen[msg.id];
             const hasBothTexts = Boolean(
               msg.original_text &&
               msg.translated_text &&
               msg.original_text !== msg.translated_text
             );
-            const primaryText = isMe
-              ? (msg.original_text || msg.translated_text)
-              : (msg.translated_text || msg.original_text);
-            const secondaryText = isMe
-              ? (hasBothTexts ? msg.translated_text : null)
-              : (hasBothTexts ? msg.original_text : null);
+            const originalText = msg.original_text || null;
+            const translatedText = hasBothTexts ? msg.translated_text : null;
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`relative max-w-[84%] rounded-2xl px-3.5 py-2.5 sm:max-w-[72%] md:max-w-[60%] ${
@@ -955,25 +945,23 @@ export default function App() {
                   )}
 
                   {/* Text */}
-                  {primaryText && <p className="text-[15px] leading-relaxed">{primaryText}</p>}
+                  {originalText && (
+                    <p className="text-[15px] leading-relaxed">{originalText}</p>
+                  )}
 
                   {/* Voice transcript label */}
                   {msg.source === 'mic_recording' && msg.original_text && !isMe && (
                     <p className="mt-0.5 text-[10px] opacity-50 italic">Transcript</p>
                   )}
 
-                  {/* Translation */}
-                  {secondaryText && msg.source !== 'file_upload' && (
-                    <button onClick={() => toggleTranslation(msg.id)}
-                      className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide opacity-60 transition hover:opacity-100">
-                      <Globe size={10} />
-                      {showTranslation ? 'Hide' : (isMe ? 'See translated' : 'See original')}
-                    </button>
-                  )}
-
-                  {showTranslation && secondaryText && (
+                  {/* Translation always visible under original when present */}
+                  {translatedText && msg.source !== 'file_upload' && (
                     <p className="mt-1.5 rounded-xl border border-white/10 bg-black/20 px-2.5 py-2 text-[13px] leading-relaxed italic text-white/80">
-                      {secondaryText}
+                      <span className="mr-1 text-[10px] uppercase tracking-wide opacity-60">
+                        <Globe size={10} className="mb-[1px] mr-1 inline-block" />
+                        Translated:
+                      </span>
+                      {translatedText}
                     </p>
                   )}
 
