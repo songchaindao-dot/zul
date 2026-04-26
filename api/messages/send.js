@@ -61,11 +61,13 @@ export default async function handler(req, res) {
   const partnerLang = partnerMember?.language || 'en';
 
   let translated_text = null;
+  let detected_language = original_language || ctx.sender_language || null;
 
   if (text && source !== 'file_upload') {
     try {
       const result = await translateWithDetection(text, partnerLang);
       translated_text = result.translated;
+      detected_language = result.detected_language || detected_language;
     } catch (err) {
       console.error('Translation error:', err);
     }
@@ -81,7 +83,9 @@ export default async function handler(req, res) {
       sender_id: ctx.sender_id,
       message_type: resolveMessageType(resolvedSource, media_type),
       original_text: text || null,
+      original_language: detected_language,
       translated_text,
+      translated_language: partnerLang,
       source: resolvedSource,
       media_url: media_url || null,
       media_mime_type: media_type || null,
