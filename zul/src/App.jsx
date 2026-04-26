@@ -914,6 +914,17 @@ export default function App() {
           {messages.map((msg) => {
             const isMe = myIsMe(msg);
             const showTranslation = translatedOpen[msg.id];
+            const hasBothTexts = Boolean(
+              msg.original_text &&
+              msg.translated_text &&
+              msg.original_text !== msg.translated_text
+            );
+            const primaryText = isMe
+              ? (msg.original_text || msg.translated_text)
+              : (msg.translated_text || msg.original_text);
+            const secondaryText = isMe
+              ? (hasBothTexts ? msg.translated_text : null)
+              : (hasBothTexts ? msg.original_text : null);
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`relative max-w-[84%] rounded-2xl px-3.5 py-2.5 sm:max-w-[72%] md:max-w-[60%] ${
@@ -944,7 +955,7 @@ export default function App() {
                   )}
 
                   {/* Text */}
-                  {msg.original_text && <p className="text-[15px] leading-relaxed">{msg.original_text}</p>}
+                  {primaryText && <p className="text-[15px] leading-relaxed">{primaryText}</p>}
 
                   {/* Voice transcript label */}
                   {msg.source === 'mic_recording' && msg.original_text && !isMe && (
@@ -952,17 +963,17 @@ export default function App() {
                   )}
 
                   {/* Translation */}
-                  {msg.translated_text && msg.source !== 'file_upload' && (
+                  {secondaryText && msg.source !== 'file_upload' && (
                     <button onClick={() => toggleTranslation(msg.id)}
                       className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide opacity-60 transition hover:opacity-100">
                       <Globe size={10} />
-                      {showTranslation ? 'Hide' : 'Translate'}
+                      {showTranslation ? 'Hide' : (isMe ? 'See translated' : 'See original')}
                     </button>
                   )}
 
-                  {showTranslation && msg.translated_text && (
+                  {showTranslation && secondaryText && (
                     <p className="mt-1.5 rounded-xl border border-white/10 bg-black/20 px-2.5 py-2 text-[13px] leading-relaxed italic text-white/80">
-                      {msg.translated_text}
+                      {secondaryText}
                     </p>
                   )}
 
