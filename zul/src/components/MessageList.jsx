@@ -3,7 +3,6 @@ import MessageBubble from './MessageBubble.jsx';
 
 export default function MessageList({ messages, member, otherMember, onEdit, onDelete }) {
   const bottomRef = useRef(null);
-  const lastScrollHeightRef = useRef(0);
 
   useEffect(() => {
     const el = bottomRef.current;
@@ -12,18 +11,19 @@ export default function MessageList({ messages, member, otherMember, onEdit, onD
 
   if (!messages.length) {
     return (
-      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm p-8 text-center">
-        <div>
-          <div className="text-4xl mb-3">💕</div>
-          <p>Say something beautiful.</p>
-          <p className="text-xs mt-1 text-slate-600">Your messages translate automatically.</p>
+      <div className="relative z-10 flex flex-1 items-center justify-center px-8 text-center text-sm text-violet-100/70">
+        <div className="max-w-xs rounded-[28px] border border-white/10 bg-[#11091b]/80 px-6 py-7 shadow-[0_18px_45px_rgba(8,2,18,0.35)] backdrop-blur-sm">
+          <div className="mb-3 text-4xl">💕</div>
+          <p className="font-medium text-white">Start your Zul conversation.</p>
+          <p className="mt-1 text-xs text-violet-200/60">Messages stay mobile-first, private, and translated automatically.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+    <div className="relative z-10 flex-1 overflow-y-auto px-3 py-4">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-1">
       {messages.map(msg => (
         <MessageBubble
           key={msg.id}
@@ -35,6 +35,7 @@ export default function MessageList({ messages, member, otherMember, onEdit, onD
           onDelete={onDelete}
         />
       ))}
+      </div>
       <div ref={bottomRef} />
     </div>
   );

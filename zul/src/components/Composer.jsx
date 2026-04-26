@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Camera, Mic, Paperclip, SendHorizontal } from 'lucide-react';
 import VoiceRecorder from './VoiceRecorder.jsx';
 import AttachmentMenu from './AttachmentMenu.jsx';
 import { api } from '../lib/api.js';
@@ -13,6 +14,11 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
 
   const handleChange = (e) => {
     setText(e.target.value);
+    const input = textareaRef.current;
+    if (input) {
+      input.style.height = '0px';
+      input.style.height = `${Math.min(input.scrollHeight, 128)}px`;
+    }
     onTyping?.(e.target.value);
   };
 
@@ -29,6 +35,9 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
     setText('');
     setSending(true);
     onStopTyping?.();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '40px';
+    }
     try {
       await api.post('/messages/send', { text: msg });
       onMessageSent?.();
@@ -42,7 +51,7 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
 
   if (recording) {
     return (
-      <div className="px-3 py-2 border-t border-slate-800">
+      <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 py-2 backdrop-blur-xl">
         <VoiceRecorder
           onDone={() => { setRecording(false); onMessageSent?.(); }}
           onCancel={() => setRecording(false)}
@@ -52,19 +61,22 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
   }
 
   return (
-    <div className="px-3 py-2 border-t border-slate-800 bg-slate-950">
+    <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 pb-3 pt-2 backdrop-blur-xl">
       {uploading && (
-        <div className="text-xs text-slate-400 animate-pulse mb-1 px-1">
+        <div className="mb-2 px-1 text-xs text-violet-200/70 animate-pulse">
           Uploading {uploading}…
         </div>
       )}
       <div className="flex items-end gap-2">
-        {/* Attach */}
-        <div className="relative flex-shrink-0">
+        <div className="relative flex flex-1 items-end gap-1 rounded-[28px] border border-white/8 bg-[#171225]/95 px-2 py-1.5 shadow-[0_14px_32px_rgba(2,6,23,0.22)]">
           <button
+            type="button"
             onClick={() => setShowAttach(v => !v)}
-            className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-pink-400 transition-colors text-xl"
-          >＋</button>
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-violet-200"
+            aria-label="Open attachment options"
+          >
+            <Paperclip size={18} />
+          </button>
           {showAttach && (
             <AttachmentMenu
               onClose={() => setShowAttach(false)}
@@ -73,32 +85,45 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
               onError={(msg) => { setUploading(null); alert(msg); }}
             />
           )}
+
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Message"
+            rows={1}
+            className="min-h-[40px] flex-1 resize-none bg-transparent px-1 py-2 text-[15px] leading-6 text-white placeholder:text-slate-500 focus:outline-none max-h-32 overflow-y-auto"
+            style={{ height: 40 }}
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowAttach(true)}
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-white/5 hover:text-violet-200"
+            aria-label="Open camera and media options"
+          >
+            <Camera size={18} />
+          </button>
         </div>
 
-        {/* Text input */}
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a message…"
-          rows={1}
-          className="flex-1 bg-slate-800 text-rose-50 placeholder-slate-500 rounded-2xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-pink-600 leading-relaxed max-h-32 overflow-y-auto"
-          style={{ minHeight: 40 }}
-        />
-
-        {/* Send or mic */}
         {text.trim() ? (
           <button
             onClick={handleSend}
             disabled={sending}
-            className="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-pink-600 hover:bg-pink-500 disabled:opacity-50 text-white rounded-full transition-colors"
-          >▶</button>
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[linear-gradient(180deg,#8b5cf6_0%,#6d28d9_100%)] text-white shadow-[0_16px_30px_rgba(91,33,182,0.38)] transition hover:brightness-110 disabled:opacity-50"
+            aria-label="Send message"
+          >
+            <SendHorizontal size={18} />
+          </button>
         ) : (
           <button
             onClick={() => setRecording(true)}
-            className="w-9 h-9 flex-shrink-0 flex items-center justify-center text-slate-400 hover:text-pink-400 transition-colors text-xl"
-          >🎤</button>
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[linear-gradient(180deg,#8b5cf6_0%,#6d28d9_100%)] text-white shadow-[0_16px_30px_rgba(91,33,182,0.38)] transition hover:brightness-110"
+            aria-label="Record voice message"
+          >
+            <Mic size={18} />
+          </button>
         )}
       </div>
     </div>

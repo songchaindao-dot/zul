@@ -22,7 +22,7 @@ function groupReactions(reactions, memberId) {
 function ReadReceipt({ message, isMine, otherMemberId }) {
   if (!isMine) return null;
   const read = (message.read_by || []).includes(otherMemberId);
-  return <span className={`text-xs ml-1 ${read ? 'text-pink-400' : 'text-slate-500'}`}>{read ? '✓✓' : '✓'}</span>;
+  return <span className={`text-[11px] ${read ? 'text-violet-200' : 'text-violet-300/65'}`}>{read ? '✓✓' : '✓'}</span>;
 }
 
 export default function MessageBubble({ message, isMine, member, otherMember, onEdit, onDelete }) {
@@ -54,21 +54,18 @@ export default function MessageBubble({ message, isMine, member, otherMember, on
   const reactions = groupReactions(message.reactions, member?.id);
 
   const bubbleClass = isMine
-    ? 'bg-gradient-to-br from-pink-600 to-purple-700 text-rose-50 rounded-2xl rounded-br-sm ml-auto'
-    : 'bg-slate-800 text-rose-50 rounded-2xl rounded-bl-sm';
+    ? 'ml-auto rounded-[22px] rounded-br-md border border-violet-300/15 bg-[linear-gradient(180deg,#7c3aed_0%,#581c87_100%)] text-white shadow-[0_16px_32px_rgba(76,29,149,0.32)]'
+    : 'rounded-[22px] rounded-bl-md border border-white/6 bg-[#1a2230]/88 text-slate-50 shadow-[0_10px_24px_rgba(2,6,23,0.28)] backdrop-blur-sm';
 
   return (
     <div
       ref={bubbleRef}
-      className={`flex ${isMine ? 'flex-row-reverse' : 'flex-row'} gap-2 group relative`}
+      className={`group relative flex ${isMine ? 'justify-end' : 'justify-start'} py-1`}
       onContextMenu={handleContextMenu}
     >
-      {/* Avatar */}
-      <div className="text-xl flex-shrink-0 self-end">{(isMine ? member : otherMember)?.avatar_emoji || '💬'}</div>
-
-      <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} max-w-[75%]`}>
+      <div className={`flex max-w-[86%] flex-col ${isMine ? 'items-end' : 'items-start'}`}>
         <div
-          className={`px-3 py-2 ${bubbleClass} cursor-pointer select-none`}
+          className={`cursor-pointer select-none px-4 py-2.5 ${bubbleClass}`}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerLeave={onPointerUp}
@@ -81,20 +78,19 @@ export default function MessageBubble({ message, isMine, member, otherMember, on
         </div>
 
         {/* Time + read receipt */}
-        <div className={`flex items-center gap-1 mt-0.5 ${isMine ? 'flex-row-reverse' : ''}`}>
-          <span className="text-xs text-slate-500">{formatTime(message.created_at)}</span>
+        <div className={`mt-1 flex items-center gap-1 px-1 ${isMine ? 'justify-end' : 'justify-start'}`}>
+          <span className={`text-[11px] ${isMine ? 'text-violet-100/75' : 'text-slate-400'}`}>{formatTime(message.created_at)}</span>
           <ReadReceipt message={message} isMine={isMine} otherMemberId={otherMember?.id} />
         </div>
 
-        {/* Reactions */}
         {reactions.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1">
+          <div className="mt-1 flex flex-wrap gap-1 px-1">
             {reactions.map(({ emoji, count, mine }) => (
               <button
                 key={emoji}
                 onClick={() => handleReact(emoji)}
-                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs transition-colors
-                  ${mine ? 'bg-pink-600/40 border border-pink-500' : 'bg-slate-700/60 border border-slate-600'}`}
+                className={`flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-xs transition-colors
+                  ${mine ? 'border-violet-400/50 bg-violet-500/25 text-violet-50' : 'border-white/8 bg-slate-800/70 text-slate-100'}`}
               >
                 {emoji} {count > 1 && count}
               </button>
@@ -102,7 +98,6 @@ export default function MessageBubble({ message, isMine, member, otherMember, on
           </div>
         )}
 
-        {/* Reaction picker */}
         {showReactions && (
           <div className="relative">
             <ReactionPicker onPick={handleReact} onClose={() => setShowReactions(false)} />
@@ -110,25 +105,24 @@ export default function MessageBubble({ message, isMine, member, otherMember, on
         )}
       </div>
 
-      {/* Context menu */}
       {showMenu && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-          <div className={`absolute bottom-full mb-1 z-20 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden min-w-[140px] ${isMine ? 'right-0' : 'left-0'}`}>
+          <div className={`absolute bottom-full z-20 mb-2 min-w-[150px] overflow-hidden rounded-2xl border border-white/10 bg-[#171225] shadow-xl ${isMine ? 'right-0' : 'left-0'}`}>
             <button
               onClick={() => { setShowReactions(true); setShowMenu(false); }}
-              className="w-full px-4 py-2.5 text-left text-sm text-rose-50 hover:bg-slate-700"
+              className="w-full px-4 py-3 text-left text-sm text-rose-50 transition hover:bg-white/5"
             >😊 React</button>
             {canEdit && (
               <button
                 onClick={() => { onEdit(message); setShowMenu(false); }}
-                className="w-full px-4 py-2.5 text-left text-sm text-rose-50 hover:bg-slate-700"
+                className="w-full px-4 py-3 text-left text-sm text-rose-50 transition hover:bg-white/5"
               >✏️ Edit</button>
             )}
             {canDelete && (
               <button
                 onClick={() => { onDelete(message.id); setShowMenu(false); }}
-                className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-slate-700"
+                className="w-full px-4 py-3 text-left text-sm text-red-300 transition hover:bg-white/5"
               >🗑️ Delete</button>
             )}
           </div>

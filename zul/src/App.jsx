@@ -534,6 +534,7 @@ export default function App() {
     const cardBorder = '1.5px solid rgba(139,92,246,0.25)';
 
     return (
+      <>
       <div className="relative min-h-[100dvh] overflow-hidden bg-[#07001a]">
 
         {/* ── FULL-PAGE PHOTO BACKGROUND ── */}
@@ -711,6 +712,7 @@ export default function App() {
         </div>
       </div>
       <InstallPrompt />
+      </>
     );
   }
 

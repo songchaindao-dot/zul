@@ -20,8 +20,8 @@ export default function PresenceDot({ member, showLabel = false }) {
 
   return (
     <span className="inline-flex items-center gap-1">
-      <span className={`inline-block w-2.5 h-2.5 rounded-full ${color} ring-2 ring-slate-900`} />
-      {showLabel && <span className="text-xs text-slate-400">{label}</span>}
+      <span className={`inline-block h-2.5 w-2.5 rounded-full ${color} ring-2 ring-[#08111f]`} />
+      {showLabel && <span className="text-xs text-violet-100/60">{label}</span>}
     </span>
   );
 }
