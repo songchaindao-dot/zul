@@ -908,13 +908,9 @@ export default function App() {
 
           {messages.map((msg) => {
             const isMe = myIsMe(msg);
-            const hasBothTexts = Boolean(
-              msg.original_text &&
-              msg.translated_text &&
-              msg.original_text !== msg.translated_text
-            );
+            const hasTranslation = Boolean(msg.original_text && msg.translated_text);
             const originalText = msg.original_text || null;
-            const translatedText = hasBothTexts ? msg.translated_text : null;
+            const translatedText = hasTranslation ? msg.translated_text : null;
             return (
               <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                 <div className={`relative max-w-[84%] rounded-2xl px-3.5 py-2.5 sm:max-w-[72%] md:max-w-[60%] ${
@@ -962,6 +958,9 @@ export default function App() {
                         Translated:
                       </span>
                       {translatedText}
+                      {translatedText === originalText && (
+                        <span className="ml-1 text-[10px] not-italic opacity-60">(same wording)</span>
+                      )}
                     </p>
                   )}
 
