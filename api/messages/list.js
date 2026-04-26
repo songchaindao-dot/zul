@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { translateText } from '../_lib/gemini.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -16,13 +17,13 @@ async function validateRoom(room_code, secret_token, client_id) {
 
   const { data: member } = await supabase
     .from('members')
-    .select('id')
+    .select('id, language')
     .eq('room_id', room.id)
     .eq('client_id', client_id)
     .single();
   if (!member) return null;
 
-  return { room_id: room.id, member_id: member.id };
+  return { room_id: room.id, member_id: member.id, member_language: member.language || 'en' };
 }
 
 export default async function handler(req, res) {
@@ -49,5 +50,33 @@ export default async function handler(req, res) {
     .limit(limit);
 
   if (error) return res.status(500).json({ error: error.message });
-  return res.json(data || []);
+
+  const messages = data || [];
+  const needsBackfill = messages.filter((msg) =>
+    msg.sender_id !== ctx.member_id &&
+    msg.original_text &&
+    msg.source !== 'file_upload' &&
+    (!msg.translated_text || msg.translated_language !== ctx.member_language)
+  );
+
+  for (const msg of needsBackfill) {
+    try {
+      const translated = await translateText(msg.original_text, ctx.member_language);
+      await supabase
+        .from('messages')
+        .update({
+          translated_text: translated,
+          translated_language: ctx.member_language,
+          translation_model: 'gemini_backfill',
+        })
+        .eq('id', msg.id);
+      msg.translated_text = translated;
+      msg.translated_language = ctx.member_language;
+      msg.translation_model = 'gemini_backfill';
+    } catch {
+      // Keep message visible even when translation service is temporarily unavailable.
+    }
+  }
+
+  return res.json(messages);
 }
