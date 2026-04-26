@@ -271,6 +271,7 @@ export default function App() {
     if (!roomId || view !== 'chat') return;
     loadMessages();
     loadMembers();
+    const pollId = setInterval(loadMessages, 2500);
 
     const channel = supabase
       .channel(`zul-room-${roomId}`)
@@ -291,12 +292,24 @@ export default function App() {
       })
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
-  }, [roomId, view]);
+    return () => {
+      clearInterval(pollId);
+      supabase.removeChannel(channel);
+    };
+  }, [roomId, roomCode, secretToken, view]);
 
   async function loadMessages() {
-    const { data } = await supabase.from('messages').select('*').eq('room_id', roomId).is('deleted_at', null).order('created_at', { ascending: true });
-    if (data) setMessages(data);
+    if (!roomCode || !secretToken) return;
+    try {
+      const res = await fetch(`/api/messages/list?room=${encodeURIComponent(roomCode)}&t=${encodeURIComponent(secretToken)}&limit=100`, {
+        headers: { 'X-Zul-Client-Id': clientId },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data)) setMessages(data);
+    } catch {
+      // Keep UI responsive if network briefly drops.
+    }
   }
 
   async function loadMembers() {
@@ -386,11 +399,13 @@ export default function App() {
     setMessageInput('');
     stopTyping();
     try {
-      await fetch(`/api/messages/send?room=${roomCode}&t=${secretToken}`, {
+      const res = await fetch(`/api/messages/send?room=${roomCode}&t=${secretToken}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
         body: JSON.stringify({ text, original_language: myMember?.language || 'en' }),
       });
+      if (!res.ok) throw new Error('send failed');
+      loadMessages();
     } catch { setError('Message failed'); }
   }
 
@@ -475,6 +490,7 @@ export default function App() {
       headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
       body: JSON.stringify({ voice_url: signedUrl, transcript: finalTranscript, duration_ms: durationMs }),
     });
+    loadMessages();
   }
 
   function cancelRecording() {
@@ -497,6 +513,7 @@ export default function App() {
       headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
       body: JSON.stringify({ media_url: signedUrl, media_type: file.type, media_name: file.name, source: 'file_upload' }),
     });
+    loadMessages();
     e.target.value = '';
   }
 
@@ -873,19 +890,19 @@ export default function App() {
                 }`}>
 
                   {/* Voice */}
-                  {msg.source === 'mic_recording' && msg.voice_url && (
+                  {msg.source === 'mic_recording' && (msg.voice_signed_url || msg.voice_url) && (
                     <div className="mb-1.5">
-                      <audio controls src={msg.voice_url} className="max-w-[200px] h-8" />
+                      <audio controls src={msg.voice_signed_url || msg.voice_url} className="max-w-[200px] h-8" />
                     </div>
                   )}
 
                   {/* Media */}
-                  {msg.source === 'file_upload' && msg.media_url && (
+                  {msg.source === 'file_upload' && (msg.media_signed_url || msg.media_url) && (
                     <div className="mb-1.5">
                       {msg.media_mime_type?.startsWith('image/') ? (
-                        <img src={msg.media_url} alt={msg.media_filename} className="max-w-[220px] rounded-xl" />
+                        <img src={msg.media_signed_url || msg.media_url} alt={msg.media_filename} className="max-w-[220px] rounded-xl" />
                       ) : (
-                        <a href={msg.media_url} target="_blank" rel="noreferrer"
+                        <a href={msg.media_signed_url || msg.media_url} target="_blank" rel="noreferrer"
                           className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white hover:bg-black/30 transition">
                           <Paperclip size={12} /> {msg.media_filename || 'File'}
                         </a>
