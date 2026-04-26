@@ -54,11 +54,11 @@ export async function translateWithDetection(text, targetLanguage) {
   try {
     const raw = await generateWithFallback(prompt);
     const parsed = parseJsonLoose(raw);
-    if (parsed?.translated) {
+    if (parsed?.translated && String(parsed.translated).trim()) {
       return {
         detected_language: parsed.detected_language || 'unknown',
         detected_name: parsed.detected_name || 'Unknown',
-        translated: parsed.translated,
+        translated: String(parsed.translated).trim(),
         confidence: Number(parsed.confidence || 0),
       };
     }
@@ -74,10 +74,10 @@ export async function translateWithDetection(text, targetLanguage) {
     return {
       detected_language: detected.language || 'unknown',
       detected_name: detected.name || 'Unknown',
-      translated: translated || text,
+      translated: translated ? String(translated).trim() : '',
       confidence: Number(detected.confidence || 0),
     };
   } catch {
-    return { detected_language: 'unknown', detected_name: 'Unknown', translated: text, confidence: 0 };
+    throw new Error('Gemini translation failed after fallback');
   }
 }

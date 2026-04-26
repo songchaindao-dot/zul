@@ -63,17 +63,31 @@ export default async function handler(req, res) {
   let translated_text = null;
   let detected_language = original_language || ctx.sender_language || null;
   let translation_model = null;
+  const normalizedSourceLanguage = (detected_language || ctx.sender_language || '').toLowerCase();
+  const normalizedPartnerLanguage = (partnerLang || '').toLowerCase();
+  const crossLanguage = Boolean(partnerMember && normalizedPartnerLanguage && normalizedPartnerLanguage !== normalizedSourceLanguage);
 
   if (text && source !== 'file_upload') {
     try {
       const result = await translateWithDetection(text, partnerLang);
       translated_text = result.translated;
       detected_language = result.detected_language || detected_language;
-      if (translated_text && translated_text !== text) {
+      if (translated_text) {
         translation_model = 'gemini';
       }
+
+      const unchangedAcrossLanguages =
+        crossLanguage &&
+        translated_text &&
+        translated_text.trim().toLowerCase() === text.trim().toLowerCase();
+
+      if (unchangedAcrossLanguages) {
+        return res.status(502).json({
+          error: 'Translation failed',
+          detail: 'Translation output was unchanged for a cross-language message',
+        });
+      }
     } catch (err) {
-      const crossLanguage = partnerMember && partnerLang !== (detected_language || ctx.sender_language);
       if (crossLanguage) {
         return res.status(502).json({
           error: 'Translation failed',
