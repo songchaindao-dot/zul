@@ -578,7 +578,7 @@ export default function App() {
                              fontSize: 13.5, lineHeight: 1.65, color: 'rgba(255,255,255,0.88)', margin: 0 }}>
                   <span style={{ color: '#f0abfc', fontWeight: 700 }}>Zuleima</span> &amp;{' '}
                   <span style={{ color: '#c4b5fd', fontWeight: 700 }}>IMan</span> found each other across
-                  the world — her words in one language, his in another. Their hearts spoke fluently.
+                  the world - her words in one language, his in another. Their hearts spoke fluently.
                 </p>
                 <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400,
                              fontSize: 11.5, lineHeight: 1.6, color: 'rgba(196,181,253,0.55)',
@@ -594,7 +594,7 @@ export default function App() {
               </h2>
               <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500,
                            fontSize: 13, color: '#a78bfa', margin: '0 0 20px' }}>
-                No account needed — just you two.
+                No account needed - just you two.
               </p>
 
               {error && (
@@ -678,7 +678,7 @@ export default function App() {
                 </p>
                 <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, fontSize: 12,
                              color: '#a78bfa', lineHeight: 1.55, margin: 0 }}>
-                  Open their link — you'll land straight in the chat. Messages auto-translate to your language.
+                  Open their link - you'll land straight in the chat. Messages auto-translate to your language.
                 </p>
               </div>
 

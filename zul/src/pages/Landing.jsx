@@ -64,7 +64,7 @@ export default function Landing() {
           </h1>
           <p className="text-slate-300 text-lg">Two hearts. Two languages. One conversation.</p>
           <p className="text-slate-500 text-sm max-w-xs mx-auto">
-            Zul was made for Zuleima — and for everyone who falls in love across languages.
+            Zul was made for Zuleima - and for everyone who falls in love across languages.
             Type, speak, share photos and videos. We translate. You connect.
           </p>
         </div>

@@ -31,7 +31,7 @@ export default function ShareRoomLink({ shareUrl, onClose }) {
           </button>
           {navigator.share && (
             <button
-              onClick={() => navigator.share({ title: 'Zul — Chat with me', url: shareUrl })}
+              onClick={() => navigator.share({ title: 'Zul - Chat with me', url: shareUrl })}
               className="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm transition-colors"
             >
               Share

@@ -15,9 +15,9 @@ export default function About({ onClose }) {
         <div className="text-sm text-slate-300 space-y-3">
           <h3 className="text-rose-50 font-semibold">The Story</h3>
           <p>The builder met Zuleima online. They didn't speak the same language. Translation apps got in the way every time they wanted to say something real.</p>
-          <p>So he built Zul. A private chatroom for two — where every message, every voice note, every caption automatically translates between your languages. Where you can actually be yourself, in your own words, and still be understood.</p>
+          <p>So he built Zul. A private chatroom for two - where every message, every voice note, every caption automatically translates between your languages. Where you can actually be yourself, in your own words, and still be understood.</p>
           <p className="text-pink-300 italic">Zul is yours now too.</p>
-          <p className="text-slate-500 text-xs">— With love, the builder</p>
+          <p className="text-slate-500 text-xs">- With love, the builder</p>
         </div>
 
         <button
