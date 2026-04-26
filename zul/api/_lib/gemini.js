@@ -43,35 +43,33 @@ function parseJsonLoose(raw) {
 }
 
 export async function detectLanguage(text) {
-  const prompt = `Detect the language of this text and return ONLY JSON:
-{"language":"es","name":"Spanish","confidence":0.99}
-No markdown.
+  const prompt = `Detect the language of this text.
+Return ONLY the ISO-639-1 language code in lowercase (example: en, es, fr, pt, ar).
+No markdown, no JSON, no explanation.
 
 Text:
 ${text}`;
 
   const raw = await generateWithFallback(prompt);
+  const code = String(raw || '').trim().toLowerCase().replace(/[^a-z-]/g, '');
+  if (code.length >= 2 && code.length <= 8) {
+    return { language: code, name: 'Unknown', confidence: 0 };
+  }
   const parsed = parseJsonLoose(raw);
   if (parsed?.language) return parsed;
   return { language: 'unknown', name: 'Unknown', confidence: 0 };
 }
 
 export async function translate(text, targetLanguage) {
-  const prompt = `Translate this text to language code "${targetLanguage}". Preserve tone, intent, punctuation, slang, and emoji. Return ONLY JSON:
-{"translated":"...","confidence":0.99}
-No markdown.
+  const prompt = `Translate this text to target language "${targetLanguage}".
+Preserve tone, intent, punctuation, slang, and emoji.
+Output MUST be in "${targetLanguage}" and MUST NOT simply copy source wording unless it is a proper noun, URL, brand name, or emoji.
+Return ONLY the translated text. No markdown, no JSON, no explanation.
 
 Text:
 ${text}`;
 
-  const raw = await generateWithFallback(prompt);
-  const parsed = parseJsonLoose(raw);
-  if (parsed?.translated) {
-    return {
-      translated: parsed.translated,
-      confidence: Number(parsed.confidence || 0),
-    };
-  }
-
-  throw new Error('Translation JSON parsing failed');
+  const translated = (await generateWithFallback(prompt)).trim();
+  if (!translated) throw new Error('Translation output was empty');
+  return { translated, confidence: 0 };
 }

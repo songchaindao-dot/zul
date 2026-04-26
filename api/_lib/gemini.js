@@ -35,37 +35,44 @@ function parseJsonLoose(raw) {
   }
 }
 
-export async function translateText(text, targetLanguage) {
-  const prompt = `Translate the following text to language code "${targetLanguage}". Keep meaning, tone, and intent. Return ONLY the translated text (no markdown, no quotes, no explanation).\n\nText:\n${text}`;
+async function translateOnce(text, targetLanguage, strict = false) {
+  const strictLine = strict
+    ? `Output MUST be fully in target language "${targetLanguage}" and MUST NOT repeat source wording unless it is a proper noun, URL, brand name, or emoji.`
+    : '';
+  const prompt = `Translate the following text to target language "${targetLanguage}".
+Preserve meaning, tone, punctuation, and emoji.
+${strictLine}
+Return ONLY the translated text (no markdown, no quotes, no explanation).
+
+Text:
+${text}`;
   return generateWithFallback(prompt);
 }
 
+export async function translateText(text, targetLanguage) {
+  const first = (await translateOnce(text, targetLanguage, false)).trim();
+  if (first) return first;
+  return (await translateOnce(text, targetLanguage, true)).trim();
+}
+
 export async function detectLanguage(text) {
-  const prompt = `Detect the language of this text and return ONLY JSON:\n{"language":"es","name":"Spanish","confidence":0.99}\nNo markdown.\n\nText:\n${text}`;
+  const prompt = `Detect the language of this text.
+Return ONLY the ISO-639-1 language code in lowercase (example: en, es, fr, pt, ar).
+No markdown, no JSON, no explanation.
+
+Text:
+${text}`;
   const raw = await generateWithFallback(prompt);
+  const code = String(raw || '').trim().toLowerCase().replace(/[^a-z-]/g, '');
+  if (code.length >= 2 && code.length <= 8) {
+    return { language: code, name: 'Unknown', confidence: 0 };
+  }
   const parsed = parseJsonLoose(raw);
   if (parsed?.language) return parsed;
   return { language: 'unknown', name: 'Unknown', confidence: 0 };
 }
 
 export async function translateWithDetection(text, targetLanguage) {
-  const prompt = `Detect source language and translate to "${targetLanguage}". Keep meaning, tone, and intent. Return ONLY JSON:\n{"detected_language":"es","detected_name":"Spanish","translated":"Hello world","confidence":0.99}\nNo markdown.\n\nText:\n${text}`;
-
-  try {
-    const raw = await generateWithFallback(prompt);
-    const parsed = parseJsonLoose(raw);
-    if (parsed?.translated && String(parsed.translated).trim()) {
-      return {
-        detected_language: parsed.detected_language || 'unknown',
-        detected_name: parsed.detected_name || 'Unknown',
-        translated: String(parsed.translated).trim(),
-        confidence: Number(parsed.confidence || 0),
-      };
-    }
-  } catch {
-    // Fall through to two-step fallback.
-  }
-
   try {
     const [detected, translated] = await Promise.all([
       detectLanguage(text),
