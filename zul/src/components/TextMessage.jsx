@@ -12,20 +12,20 @@ export default function TextMessage({ message, isMine }) {
 
   return (
     <div>
-      <p className="text-rose-50 text-sm leading-relaxed whitespace-pre-wrap break-words">{primary}</p>
+      <p className="whitespace-pre-wrap break-words text-[15px] leading-6 text-inherit">{primary}</p>
       {secondary && (
         <button
           onClick={() => setShowOriginal(v => !v)}
-          className="mt-1 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+          className="mt-1 text-xs text-violet-200/80 transition-colors hover:text-violet-100"
         >
           {showOriginal ? '▲ hide original' : '▼ see original'}
         </button>
       )}
       {secondary && showOriginal && (
-        <p className="mt-1 text-xs text-slate-400 italic">{secondary}</p>
+        <p className="mt-1 text-xs italic text-white/70">{secondary}</p>
       )}
       {message.edited_at && (
-        <span className="text-xs text-slate-500 ml-1">edited</span>
+        <span className="ml-1 text-[11px] text-white/50">edited</span>
       )}
     </div>
   );

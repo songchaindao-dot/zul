@@ -3,6 +3,23 @@ import { getClientId } from './client-id.js';
 let _roomCode = null;
 let _secretToken = null;
 
+function getApiBaseUrl() {
+  const configuredBase = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (configuredBase) {
+    return configuredBase.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    const { hostname, port } = window.location;
+    const isLocalPreview = (hostname === 'localhost' || hostname === '127.0.0.1') && port !== '3000';
+    if (isLocalPreview) {
+      return 'http://127.0.0.1:3000/api';
+    }
+  }
+
+  return '/api';
+}
+
 export function setRoomCredentials(roomCode, secretToken) {
   _roomCode = roomCode;
   _secretToken = secretToken;
@@ -14,8 +31,9 @@ async function zulFetch(path, options = {}) {
   if (_roomCode) params.set('room', _roomCode);
   if (_secretToken) params.set('t', _secretToken);
   const qs = params.toString() ? `?${params}` : '';
+  const baseUrl = getApiBaseUrl();
 
-  const res = await fetch(`/api${path}${qs}`, {
+  const res = await fetch(`${baseUrl}${path}${qs}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

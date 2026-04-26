@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Lock, MoreVertical, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase.js';
 import { setRoomCredentials, api } from '../lib/api.js';
 import { useMessages } from '../hooks/useMessages.js';
@@ -73,71 +74,114 @@ export default function Chat({ room, member: initialMember, otherMembers: initia
   const other = otherMembers[0];
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm flex-shrink-0">
-        <button onClick={() => setShowAbout(true)}>
-          <ZulLogo size={32} />
-        </button>
+    <div className="min-h-screen bg-[#05010d] text-rose-50 sm:px-6 sm:py-6">
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col overflow-hidden bg-[#0b0613] shadow-[0_30px_80px_rgba(3,1,10,0.65)] sm:min-h-[820px] sm:rounded-[34px] sm:border sm:border-white/10">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="pointer-events-none absolute inset-0">
+            <div
+              className="absolute inset-0 opacity-90"
+              style={{
+                backgroundColor: '#090312',
+                backgroundImage: `
+                  radial-gradient(circle at top, rgba(168, 85, 247, 0.24), transparent 32%),
+                  radial-gradient(circle at 20% 20%, rgba(91, 33, 182, 0.22), transparent 28%),
+                  linear-gradient(180deg, #10071b 0%, #090312 100%)
+                `,
+              }}
+            />
+            <div
+              className="absolute inset-0 opacity-[0.14]"
+              style={{
+                backgroundImage: `
+                  radial-gradient(circle at 24px 24px, rgba(196, 181, 253, 0.32) 1.2px, transparent 0),
+                  radial-gradient(circle at 72px 72px, rgba(196, 181, 253, 0.24) 1px, transparent 0)
+                `,
+                backgroundSize: '96px 96px',
+              }}
+            />
+          </div>
 
-        <div className="flex-1 min-w-0">
-          {other ? (
-            <div className="flex items-center gap-2">
-              <span className="text-lg">{other.avatar_emoji}</span>
-              <div>
-                <p className="text-rose-50 font-semibold text-sm truncate">{other.display_name}</p>
-                <div className="flex items-center gap-1">
-                  <PresenceDot member={other} showLabel />
+          <div className="relative z-10 flex items-center gap-3 bg-[#08111f]/92 px-3 py-3 backdrop-blur-xl">
+            <button
+              type="button"
+              onClick={() => (window.history.length > 1 ? window.history.back() : setShowAbout(true))}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Go back"
+            >
+              <ArrowLeft size={20} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowAbout(true)}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10"
+              aria-label="Open Zul details"
+            >
+              <ZulLogo size={34} />
+            </button>
+
+            <div className="min-w-0 flex-1">
+              {other ? (
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold tracking-tight text-white">{other.display_name}</p>
+                  <div className="mt-0.5 flex items-center gap-2">
+                    <span className="text-sm">{other.avatar_emoji}</span>
+                    <PresenceDot member={other} showLabel />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold tracking-tight text-white">Zul chat room</p>
+                  <p className="text-xs text-violet-200/75">Waiting for someone to join</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div>
-              <p className="text-rose-50 font-semibold text-sm">Waiting for someone to join…</p>
-              <p className="text-xs text-slate-500">Share the link below</p>
-            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowShare(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-white/80 transition hover:bg-white/10 hover:text-white"
+              title="Share room link"
+              aria-label="Share room link"
+            >
+              <MoreVertical size={20} />
+            </button>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-2 border-b border-white/5 bg-[#11081d]/88 px-4 py-2 text-[11px] text-violet-100/80 backdrop-blur">
+            <Lock size={12} className="text-violet-200" />
+            <span className="truncate">Private translated chat with Zul branding</span>
+            <Sparkles size={12} className="ml-auto text-fuchsia-300" />
+          </div>
+
+          <MessageList
+            messages={messages}
+            member={member}
+            otherMember={other}
+            onEdit={setEditingMessage}
+            onDelete={handleDelete}
+          />
+
+          <TypingIndicator typingEvent={otherTyping} memberName={other?.display_name} />
+
+          <Composer
+            onTyping={handleInputChange}
+            onStopTyping={stopTyping}
+            onMessageSent={reload}
+          />
+
+          {showShare && <ShareRoomLink shareUrl={shareUrl} onClose={() => setShowShare(false)} />}
+          {showAbout && <About onClose={() => setShowAbout(false)} />}
+          {editingMessage && (
+            <EditMessageModal
+              message={editingMessage}
+              onSave={handleEdit}
+              onClose={() => setEditingMessage(null)}
+            />
           )}
+          <InstallPrompt />
         </div>
-
-        <button
-          onClick={() => setShowShare(true)}
-          className="text-slate-400 hover:text-pink-400 transition-colors text-sm px-2 py-1 rounded-lg hover:bg-slate-800"
-          title="Share room link"
-        >
-          🔗
-        </button>
       </div>
-
-      {/* Messages */}
-      <MessageList
-        messages={messages}
-        member={member}
-        otherMember={other}
-        onEdit={setEditingMessage}
-        onDelete={handleDelete}
-      />
-
-      {/* Typing indicator */}
-      <TypingIndicator typingEvent={otherTyping} memberName={other?.display_name} />
-
-      {/* Composer */}
-      <Composer
-        onTyping={handleInputChange}
-        onStopTyping={stopTyping}
-        onMessageSent={reload}
-      />
-
-      {/* Modals */}
-      {showShare && <ShareRoomLink shareUrl={shareUrl} onClose={() => setShowShare(false)} />}
-      {showAbout && <About onClose={() => setShowAbout(false)} />}
-      {editingMessage && (
-        <EditMessageModal
-          message={editingMessage}
-          onSave={handleEdit}
-          onClose={() => setEditingMessage(null)}
-        />
-      )}
-      <InstallPrompt />
     </div>
   );
 }
