@@ -83,18 +83,12 @@ export default async function handler(req, res) {
         translated_text.trim().toLowerCase() === text.trim().toLowerCase();
 
       if (unchangedAcrossLanguages) {
-        return res.status(502).json({
-          error: 'Translation failed',
-          detail: 'Translation output was unchanged for a cross-language message',
-        });
+        translated_text = null;
+        translation_model = null;
       }
-    } catch (err) {
-      if (crossLanguage) {
-        return res.status(502).json({
-          error: 'Translation failed',
-          detail: err?.message || 'Gemini translation error',
-        });
-      }
+    } catch {
+      translated_text = null;
+      translation_model = null;
     }
   }
 

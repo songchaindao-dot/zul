@@ -13,12 +13,12 @@ export default function About({ onClose }) {
         </div>
 
         <div className="text-sm text-slate-300 space-y-3">
-          <p>Zul is a private, real-time chat app that automatically translates every message between two languages — so you and your contact can always communicate naturally, in your own words.</p>
+          <p>Zul is a private, real-time chat app that automatically translates every message between two languages, so you and your contact can always communicate naturally, in your own words.</p>
           <ul className="space-y-2 text-violet-300">
-            <li>🌍 <span className="text-white font-medium">Auto-translation</span> — messages translate instantly as they arrive</li>
-            <li>🔒 <span className="text-white font-medium">Private rooms</span> — invite-only, no account required</li>
-            <li>🎙️ <span className="text-white font-medium">Voice & media</span> — send voice notes, photos, and files</li>
-            <li>⚡ <span className="text-white font-medium">Real-time</span> — see messages the moment they're sent</li>
+            <li>🌍 <span className="text-white font-medium">Auto-translation</span>: messages translate instantly as they arrive</li>
+            <li>🔒 <span className="text-white font-medium">Private rooms</span>: invite-only, no account required</li>
+            <li>🎙️ <span className="text-white font-medium">Voice & media</span>: send voice notes, photos, and files</li>
+            <li>⚡ <span className="text-white font-medium">Real-time</span>: see messages the moment they're sent</li>
           </ul>
         </div>
 

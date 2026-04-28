@@ -105,7 +105,7 @@ function IOSInstallSheet({ onClose }) {
           </li>
           <li className="flex items-start gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">3</span>
-            <span>Tap <strong className="text-white">Add</strong> — Zul will appear on your home screen 💕</span>
+            <span>Tap <strong className="text-white">Add</strong>. Zul will appear on your home screen 💕</span>
           </li>
         </ol>
         <button
@@ -680,7 +680,7 @@ export default function App() {
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-violet-700/20 blur-[100px]" />
         </div>
-        <ZulLogo size={120} className="relative z-10" />
+        <ZulLogo size={96} className="relative z-10" />
         <div className="relative z-10 flex gap-2">
           {[0, 1, 2].map((i) => (
             <span key={i} className="h-2 w-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: `${i * 160}ms` }} />
@@ -708,7 +708,7 @@ export default function App() {
 
         {/* Logo */}
         <div className="relative z-10 mb-5 flex flex-col items-center gap-2 text-center">
-          <img src={zulLogo} alt="Zul" className="h-28 w-28 drop-shadow-2xl" />
+          <img src={zulLogo} alt="Zul" className="h-20 w-20 object-contain drop-shadow-2xl" />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-400">Auto Translate Messenger</p>
         </div>
 
@@ -801,7 +801,7 @@ export default function App() {
           {/* Partner hint */}
           <div className="mt-4 rounded-2xl border border-violet-800/30 bg-violet-950/30 px-4 py-3 text-sm">
             <p className="font-semibold text-violet-200">Have a link from your partner?</p>
-            <p className="mt-0.5 text-xs text-violet-500">Open it — you'll join their room directly and chat in your own language.</p>
+            <p className="mt-0.5 text-xs text-violet-500">Open it and you'll join their room directly, chatting in your own language.</p>
           </div>
 
           {/* Install button */}
@@ -836,7 +836,7 @@ export default function App() {
 
         {/* Logo + invite message */}
         <div className="relative z-10 mb-5 flex flex-col items-center gap-2 text-center">
-          <img src={zulLogo} alt="Zul" className="h-20 w-20 drop-shadow-xl" />
+          <img src={zulLogo} alt="Zul" className="h-16 w-16 object-contain drop-shadow-xl" />
           <h2 className="text-xl font-bold text-white">You've been invited</h2>
           <p className="text-sm text-violet-400">Set up your profile to join the conversation</p>
         </div>
