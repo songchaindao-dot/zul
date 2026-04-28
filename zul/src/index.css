@@ -12,12 +12,37 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overscroll-behavior: none;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
 select option {
   background-color: #1a0040;
   color: #f3e8ff;
+}
+
+@keyframes zul-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.zul-rise {
+  animation: zul-rise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes zul-pulse-cta {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0); }
+  50%       { box-shadow: 0 0 0 8px rgba(139,92,246,0.18); }
+}
+.zul-pulse-cta {
+  animation: zul-pulse-cta 2s ease-in-out infinite;
 }

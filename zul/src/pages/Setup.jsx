@@ -13,6 +13,8 @@ export default function Setup({ roomCode, secretToken, onJoined }) {
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
 
+  const nameReady = displayName.trim().length >= 2;
+
   const handleJoin = async () => {
     if (!displayName.trim() || joining) return;
     setJoining(true);
@@ -28,7 +30,6 @@ export default function Setup({ roomCode, secretToken, onJoined }) {
         avatar_emoji: avatar,
       });
 
-      // Save profile
       const profileKey = `zul_profile_${roomCode}`;
       localStorage.setItem(profileKey, JSON.stringify({
         client_id,
@@ -49,67 +50,83 @@ export default function Setup({ roomCode, secretToken, onJoined }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
-      <div className="w-full max-w-sm space-y-6 text-center">
-        <div className="space-y-2">
-          <div className="flex justify-center"><ZulLogo size={56} /></div>
-          <h1 className="text-2xl font-bold text-rose-50">Welcome to Zul</h1>
-          <p className="text-slate-400 text-sm">You've been invited to a private chatroom. Tell us about yourself.</p>
-        </div>
+    <div className="min-h-dvh bg-[#07001a] flex flex-col items-center justify-center px-4 py-10 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-0 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-violet-700/20 blur-[100px]" />
+      </div>
 
-        <div className="space-y-4 text-left">
-          <div>
-            <label className="text-xs text-slate-400 uppercase tracking-wider">Your name</label>
+      {/* Logo + invite */}
+      <div className="relative z-10 mb-5 flex flex-col items-center gap-2 text-center">
+        <ZulLogo size={88} />
+        <h2 className="text-xl font-bold text-white">You've been invited</h2>
+        <p className="text-sm text-violet-400">Set up your profile to join the conversation</p>
+      </div>
+
+      {/* Form */}
+      <div className="relative z-10 w-full max-w-sm rounded-[28px] border border-violet-700/30 bg-[#0d0120]/85 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
+
+        {error && <div className="mb-4 rounded-xl border border-red-500/30 bg-red-900/25 px-4 py-3 text-sm text-red-300">{error}</div>}
+
+        {/* Name */}
+        <div className="mb-4">
+          <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your name</label>
+          <div className="relative">
             <input
               type="text"
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && nameReady && handleJoin()}
               placeholder="Enter your name"
               maxLength={30}
               autoFocus
-              className="mt-1 w-full bg-slate-800 text-rose-50 placeholder-slate-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-pink-500"
+              className="w-full rounded-2xl border bg-violet-950/40 px-4 py-3.5 text-base text-white outline-none placeholder:text-violet-600 transition-colors"
+              style={{ borderColor: nameReady ? 'rgba(167,139,250,0.6)' : 'rgba(124,58,237,0.3)' }}
             />
+            {nameReady && <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-violet-400">✓</span>}
           </div>
+        </div>
 
-          <div>
-            <label className="text-xs text-slate-400 uppercase tracking-wider">Your language</label>
+        {/* Language */}
+        {nameReady && (
+          <div className="mb-4 zul-rise">
+            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your language</label>
             <select
               value={language}
               onChange={e => setLanguage(e.target.value)}
-              className="mt-1 w-full bg-slate-800 text-rose-50 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-pink-500"
+              className="w-full rounded-2xl border border-violet-700/40 bg-violet-950/40 px-4 py-3.5 text-base text-white outline-none focus:border-violet-500"
+              style={{ colorScheme: 'dark' }}
             >
-              {LANGUAGES.map(l => (
-                <option key={l.code} value={l.code}>{l.flag} {l.name}</option>
-              ))}
+              {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.flag} {l.name}</option>)}
             </select>
           </div>
+        )}
 
-          <div>
-            <label className="text-xs text-slate-400 uppercase tracking-wider">Your avatar</label>
-            <div className="mt-2 flex flex-wrap gap-2">
+        {/* Avatar */}
+        {nameReady && (
+          <div className="mb-5 zul-rise" style={{ animationDelay: '60ms' }}>
+            <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Pick an avatar</label>
+            <div className="flex flex-wrap gap-2">
               {AVATARS.map(em => (
                 <button
                   key={em}
                   onClick={() => setAvatar(em)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all
-                    ${avatar === em ? 'bg-pink-600 ring-2 ring-pink-400' : 'bg-slate-800 hover:bg-slate-700'}`}
+                  className={`h-10 w-10 rounded-2xl text-xl transition-all ${avatar === em ? 'bg-violet-600/50 ring-2 ring-violet-400 scale-110' : 'bg-violet-900/25 hover:bg-violet-800/40'}`}
                 >
                   {em}
                 </button>
               ))}
             </div>
           </div>
+        )}
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-
-          <button
-            onClick={handleJoin}
-            disabled={!displayName.trim() || joining}
-            className="w-full py-3.5 bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-500 hover:to-purple-600 disabled:opacity-50 text-white font-semibold rounded-2xl transition-all"
-          >
-            {joining ? 'Joining…' : 'Enter chatroom →'}
-          </button>
-        </div>
+        <button
+          onClick={handleJoin}
+          disabled={!nameReady || joining}
+          className={`w-full rounded-2xl py-4 text-base font-bold text-white transition-all ${nameReady && !joining ? 'zul-pulse-cta' : 'opacity-40 cursor-not-allowed'}`}
+          style={{ background: 'linear-gradient(135deg, #6d28d9 0%, #9333ea 55%, #c026d3 100%)', boxShadow: nameReady ? '0 8px 32px rgba(109,40,217,0.5)' : 'none' }}
+        >
+          {joining ? 'Joining…' : 'Join Conversation →'}
+        </button>
       </div>
     </div>
   );

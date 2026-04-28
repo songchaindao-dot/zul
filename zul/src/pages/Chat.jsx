@@ -74,8 +74,8 @@ export default function Chat({ room, member: initialMember, otherMembers: initia
   const other = otherMembers[0];
 
   return (
-    <div className="min-h-screen bg-[#05010d] text-rose-50 sm:px-6 sm:py-6">
-      <div className="mx-auto flex min-h-screen max-w-lg flex-col overflow-hidden bg-[#0b0613] shadow-[0_30px_80px_rgba(3,1,10,0.65)] sm:min-h-[820px] sm:rounded-[34px] sm:border sm:border-white/10">
+    <div className="flex h-dvh flex-col bg-[#05010d] text-rose-50 sm:items-center sm:justify-center sm:overflow-auto sm:p-6">
+      <div className="flex h-full w-full flex-col overflow-hidden bg-[#0b0613] sm:h-auto sm:min-h-[820px] sm:max-w-lg sm:rounded-[34px] sm:border sm:border-white/10 sm:shadow-[0_30px_80px_rgba(3,1,10,0.65)]">
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="pointer-events-none absolute inset-0">
             <div

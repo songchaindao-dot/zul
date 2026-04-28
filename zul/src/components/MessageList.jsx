@@ -22,7 +22,7 @@ export default function MessageList({ messages, member, otherMember, onEdit, onD
   }
 
   return (
-    <div className="relative z-10 flex-1 overflow-y-auto px-3 py-4">
+    <div className="relative z-10 flex-1 overflow-y-auto overscroll-y-contain px-3 py-4">
       <div className="mx-auto flex w-full max-w-md flex-col gap-1">
       {messages.map(msg => (
         <MessageBubble

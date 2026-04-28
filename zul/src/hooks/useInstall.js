@@ -3,8 +3,13 @@ import { useState, useEffect } from 'react';
 export function useInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
-  const [isIOS] = useState(() => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream);
-  const [isInstalled] = useState(() => window.matchMedia('(display-mode: standalone)').matches);
+  const [isIOS] = useState(() =>
+    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+  );
+  const [isInstalled] = useState(() =>
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+  );
 
   useEffect(() => {
     const handler = (e) => {
@@ -22,6 +27,10 @@ export function useInstall() {
     const { outcome } = await deferredPrompt.userChoice;
     setDeferredPrompt(null);
     setIsInstallable(false);
+    if (outcome === 'accepted' && 'Notification' in window && Notification.permission === 'default') {
+      // After the app installs, ask for notification permission automatically
+      setTimeout(() => Notification.requestPermission(), 1500);
+    }
     return outcome;
   };
 

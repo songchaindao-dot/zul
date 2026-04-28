@@ -51,7 +51,7 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
 
   if (recording) {
     return (
-      <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 py-2 backdrop-blur-xl">
+      <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-xl">
         <VoiceRecorder
           onDone={() => { setRecording(false); onMessageSent?.(); }}
           onCancel={() => setRecording(false)}
@@ -61,7 +61,7 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
   }
 
   return (
-    <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 pb-3 pt-2 backdrop-blur-xl">
+    <div className="relative z-10 border-t border-white/5 bg-[#0c0816]/95 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl">
       {uploading && (
         <div className="mb-2 px-1 text-xs text-violet-200/70 animate-pulse">
           Uploading {uploading}…
@@ -93,7 +93,7 @@ export default function Composer({ onTyping, onStopTyping, onMessageSent }) {
             onKeyDown={handleKeyDown}
             placeholder="Message"
             rows={1}
-            className="min-h-[40px] flex-1 resize-none bg-transparent px-1 py-2 text-[15px] leading-6 text-white placeholder:text-slate-500 focus:outline-none max-h-32 overflow-y-auto"
+            className="min-h-[40px] flex-1 resize-none bg-transparent px-1 py-2 text-base leading-6 text-white placeholder:text-slate-500 focus:outline-none max-h-32 overflow-y-auto"
             style={{ height: 40 }}
           />
 

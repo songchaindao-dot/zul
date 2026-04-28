@@ -56,7 +56,7 @@ ${text}`;
   return generateWithFallback(prompt);
 }
 
-async function translateText(text, targetLanguage) {
+export async function translateText(text, targetLanguage) {
   const first = (await translateOnce(text, targetLanguage, false)).trim();
   if (first) return first;
   return (await translateOnce(text, targetLanguage, true)).trim();

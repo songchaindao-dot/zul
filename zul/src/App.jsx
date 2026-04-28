@@ -2,11 +2,17 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import {
   ArrowLeft, Check, CheckCheck, ChevronDown, Copy, Download, Globe,
-  Link, Mic, Paperclip, Send, X,
+  Link, Mic, Paperclip, Send, Smartphone, X,
 } from 'lucide-react';
-import heroPhoto from './assets/IMan and Zul.jpg';
-import InstallPrompt from './components/InstallPrompt.jsx';
+import zulLogo from './assets/zul-logo.png';
 import { useInstall } from './hooks/useInstall.js';
+
+function urlBase64ToUint8Array(base64) {
+  const pad = '='.repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pnlpivlsxmdctqhcintb.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -47,30 +53,16 @@ function fmtDuration(secs) {
   return `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
 }
 
-function ZulLogo({ size = 72 }) {
+function ZulLogo({ size = 72, className = '' }) {
   return (
-    <svg viewBox="0 0 200 200" width={size} height={size} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="zul-bg" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#6d28d9" />
-        </radialGradient>
-        <linearGradient id="zul-petal" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fbbf24" />
-          <stop offset="100%" stopColor="#f59e0b" />
-        </linearGradient>
-      </defs>
-      <circle cx="100" cy="100" r="95" fill="url(#zul-bg)" opacity="0.95" />
-      <ellipse cx="70" cy="80" rx="18" ry="35" fill="url(#zul-petal)" opacity="0.9" transform="rotate(-45 70 80)" />
-      <ellipse cx="130" cy="80" rx="18" ry="35" fill="url(#zul-petal)" opacity="0.9" transform="rotate(45 130 80)" />
-      <ellipse cx="100" cy="50" rx="18" ry="35" fill="url(#zul-petal)" opacity="0.95" />
-      <ellipse cx="80" cy="125" rx="16" ry="30" fill="url(#zul-petal)" opacity="0.85" transform="rotate(-60 80 125)" />
-      <ellipse cx="120" cy="125" rx="16" ry="30" fill="url(#zul-petal)" opacity="0.85" transform="rotate(60 120 125)" />
-      <circle cx="100" cy="95" r="22" fill="#f59e0b" opacity="0.95" />
-      <circle cx="100" cy="95" r="18" fill="#fbbf24" />
-      <path d="M100 105 C95 115,85 115,85 105 C85 100,88 95,95 95 C98 95,100 97,100 97 C100 97,102 95,105 95 C112 95,115 100,115 105 C115 115,105 115,100 105 Z" fill="#ec4899" opacity="0.9" />
-      <circle cx="100" cy="100" r="95" fill="none" stroke="white" strokeWidth="3" opacity="0.25" />
-    </svg>
+    <img
+      src={zulLogo}
+      alt="Zul"
+      width={size}
+      height={size}
+      className={`object-contain drop-shadow-xl ${className}`}
+      style={{ width: size, height: size }}
+    />
   );
 }
 
@@ -83,6 +75,45 @@ function TypingDots() {
           <span className="h-2 w-2 animate-bounce rounded-full bg-violet-400" style={{ animationDelay: '120ms' }} />
           <span className="h-2 w-2 animate-bounce rounded-full bg-violet-400" style={{ animationDelay: '240ms' }} />
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── iOS Install Sheet ─────────────────────────────────────────────────────────
+function IOSInstallSheet({ onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-sm rounded-t-[28px] border border-white/10 bg-[#12002b] p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-white">Add Zul to Home Screen</h3>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20">
+            <X size={16} />
+          </button>
+        </div>
+        <ol className="space-y-4 text-sm text-purple-200">
+          <li className="flex items-start gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">1</span>
+            <span>Tap the <strong className="text-white">Share</strong> button <span className="rounded bg-violet-900/50 px-1.5 py-0.5 font-mono text-xs">⎋</span> at the bottom of Safari</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">2</span>
+            <span>Scroll down and tap <strong className="text-white">Add to Home Screen</strong></span>
+          </li>
+          <li className="flex items-start gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">3</span>
+            <span>Tap <strong className="text-white">Add</strong> — Zul will appear on your home screen 💕</span>
+          </li>
+        </ol>
+        <button
+          onClick={onClose}
+          className="mt-6 w-full rounded-2xl bg-violet-600 py-3 text-sm font-bold text-white transition hover:bg-violet-500"
+        >
+          Got it
+        </button>
       </div>
     </div>
   );
@@ -184,8 +215,9 @@ function Sidebar({ partner, myMember, shareLink, roomCode, copied, onCopy, onLea
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
-  const { isInstallable, install: triggerInstall } = useInstall();
+  const { isInstallable, isIOS, isInstalled, install: triggerInstall } = useInstall();
   const [view, setView] = useState('splash');
+  const [showIOSInstall, setShowIOSInstall] = useState(false);
 
   const [roomCode, setRoomCode] = useState(null);
   const [roomId, setRoomId] = useState(null);
@@ -219,6 +251,45 @@ export default function App() {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const myMemberRef = useRef(null);
+
+  // Keep ref in sync so realtime closures always see current member
+  useEffect(() => { myMemberRef.current = myMember; }, [myMember]);
+
+  // Initialise AudioContext on first user gesture (required by browsers)
+  useEffect(() => {
+    const init = () => {
+      if (!audioCtxRef.current) {
+        try { audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+      }
+    };
+    document.addEventListener('click', init, { once: true });
+    document.addEventListener('touchend', init, { once: true });
+    return () => {
+      document.removeEventListener('click', init);
+      document.removeEventListener('touchend', init);
+    };
+  }, []);
+
+  // Auto-request notification permission when running as installed PWA
+  useEffect(() => {
+    if (view !== 'chat') return;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      subscribePush();
+      return;
+    }
+    if (Notification.permission === 'default' && isStandalone) {
+      const t = setTimeout(async () => {
+        const result = await Notification.requestPermission();
+        if (result === 'granted') subscribePush();
+      }, 2500);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -275,7 +346,14 @@ export default function App() {
     const channel = supabase
       .channel(`zul-room-${roomId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload) => {
-        setMessages((prev) => prev.find((m) => m.id === payload.new.id) ? prev : [...prev, payload.new]);
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === payload.new.id)) return prev;
+          if (payload.new.sender_id !== myMemberRef.current?.id &&
+              (document.hidden || !document.hasFocus())) {
+            playNotifSound();
+          }
+          return [...prev, payload.new];
+        });
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `room_id=eq.${roomId}` }, (payload) => {
         setMessages((prev) => prev.map((m) => m.id === payload.new.id ? payload.new : m));
@@ -302,6 +380,47 @@ export default function App() {
     const timer = setTimeout(() => setError(''), 5000);
     return () => clearTimeout(timer);
   }, [error, view]);
+
+  function playNotifSound() {
+    const ctx = audioCtxRef.current;
+    if (!ctx) return;
+    try {
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime;
+      [[880, 0], [660, 0.14]].forEach(([freq, delay]) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, now + delay);
+        gain.gain.linearRampToValueAtTime(0.18, now + delay + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + delay);
+        osc.stop(now + delay + 0.45);
+      });
+    } catch {}
+  }
+
+  async function subscribePush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    if (!vapidKey || !roomCode || !secretToken) return;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const existing = await reg.pushManager.getSubscription();
+      const sub = existing || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey),
+      });
+      await fetch(`/api/push/subscribe?room=${encodeURIComponent(roomCode)}&t=${encodeURIComponent(secretToken)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Zul-Client-Id': clientId },
+        body: JSON.stringify({ subscription: sub.toJSON() }),
+      });
+    } catch {}
+  }
 
   async function loadMessages() {
     if (!roomCode || !secretToken) return;
@@ -451,6 +570,19 @@ export default function App() {
     if (roomId) sendTypingState(false);
   }
 
+  async function handleInstall() {
+    if (isIOS) { setShowIOSInstall(true); return; }
+    if (isInstallable) {
+      const outcome = await triggerInstall();
+      if (outcome === 'accepted' && 'Notification' in window && Notification.permission === 'default') {
+        setTimeout(async () => {
+          const result = await Notification.requestPermission();
+          if (result === 'granted') subscribePush();
+        }, 1500);
+      }
+    }
+  }
+
   function copyLink(link) {
     navigator.clipboard.writeText(link).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
@@ -544,21 +676,15 @@ export default function App() {
   // ═══════════════════════════════════════════════════════════════════════════
   if (view === 'splash') {
     return (
-      <div className="fixed inset-0 overflow-hidden bg-[#0a0018]">
-        <img src={heroPhoto} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40" style={{ objectPosition: 'center 35%' }} />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0018] via-[#0a0018]/60 to-transparent" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-5">
-          <div className="rounded-[2rem] border border-violet-500/30 bg-violet-900/20 p-5 backdrop-blur-xl shadow-2xl shadow-violet-900/50">
-            <ZulLogo size={80} />
-          </div>
-          <h1 className="bg-gradient-to-r from-violet-300 via-fuchsia-200 to-pink-300 bg-clip-text text-5xl font-black tracking-tight text-transparent">
-            Zul
-          </h1>
-          <div className="flex gap-2">
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: `${i * 150}ms` }} />
-            ))}
-          </div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-6 bg-[#07001a]">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-violet-700/20 blur-[100px]" />
+        </div>
+        <ZulLogo size={120} className="relative z-10" />
+        <div className="relative z-10 flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="h-2 w-2 rounded-full bg-violet-400 animate-bounce" style={{ animationDelay: `${i * 160}ms` }} />
+          ))}
         </div>
       </div>
     );
@@ -568,189 +694,128 @@ export default function App() {
   // LANDING
   // ═══════════════════════════════════════════════════════════════════════════
   if (view === 'landing') {
-    // Card styles reused inline
-    const cardBg = 'rgba(12,0,36,0.82)';
-    const cardBorder = '1.5px solid rgba(139,92,246,0.25)';
+    const nameReady = setupName.trim().length >= 2;
+    const canCreate = nameReady && !loading;
 
     return (
       <>
-      <div className="relative min-h-[100dvh] overflow-hidden bg-[#07001a]">
+      <div className="relative min-h-dvh overflow-x-hidden bg-[#07001a] flex flex-col items-center justify-center px-4 py-10 pt-[max(2.5rem,env(safe-area-inset-top))]">
+        {/* Ambient glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-violet-700/25 blur-[120px]" />
+          <div className="absolute bottom-0 right-0 h-[300px] w-[300px] rounded-full bg-fuchsia-800/20 blur-[100px]" />
+        </div>
 
-        {/* ── FULL-PAGE PHOTO BACKGROUND ── */}
-        <img
-          src={heroPhoto}
-          alt="IMan and Zuleima"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: '50% 8%' }}
-        />
+        {/* Logo */}
+        <div className="relative z-10 mb-5 flex flex-col items-center gap-2 text-center">
+          <img src={zulLogo} alt="Zul" className="h-28 w-28 drop-shadow-2xl" />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-400">Auto Translate Messenger</p>
+        </div>
 
-        {/* Subtle dark vignette so text is readable — NOT a purple block */}
-        <div className="absolute inset-0"
-             style={{ background: 'linear-gradient(160deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.12) 40%, rgba(0,0,0,0.55) 100%)' }} />
+        {/* Onboarding card */}
+        <div className="relative z-10 w-full max-w-sm rounded-[28px] border border-violet-700/30 bg-[#0d0120]/85 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
 
-        {/* ── CONTENT LAYER ── */}
-        <div className="relative z-10 min-h-[100dvh] flex flex-col md:flex-row md:items-stretch">
+          <h2 className="mb-1 text-xl font-bold tracking-tight text-white">Create your chat room</h2>
+          <p className="mb-5 text-sm text-violet-400">No account needed · Messages auto-translate instantly</p>
 
-          {/* LEFT / TOP — open space (logo lives here) */}
-          <div className="flex-1 flex flex-col p-5 md:p-8">
-            {/* Logo pill */}
-            <div className="self-start flex items-center gap-2 rounded-full px-4 py-2"
-                 style={{ background: 'rgba(0,0,0,0.42)', backdropFilter: 'blur(16px)',
-                           WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' }}>
-              <ZulLogo size={20} />
-              <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 16,
-                             background: 'linear-gradient(90deg,#e9d5ff,#f5d0fe)',
-                             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Zul
-              </span>
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-500/30 bg-red-900/25 px-4 py-3 text-sm text-red-300">{error}</div>
+          )}
+
+          {/* Name */}
+          <div className="mb-4">
+            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your name</label>
+            <div className="relative">
+              <input
+                value={setupName}
+                onChange={(e) => setSetupName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && canCreate && createRoom()}
+                placeholder="Enter your name"
+                autoFocus
+                className="w-full rounded-2xl border bg-violet-950/40 px-4 py-3.5 text-base text-white outline-none placeholder:text-violet-600 transition-colors"
+                style={{ borderColor: nameReady ? 'rgba(167,139,250,0.6)' : 'rgba(124,58,237,0.3)' }}
+              />
+              {nameReady && (
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-violet-400 text-lg">✓</span>
+              )}
             </div>
           </div>
 
-          {/* RIGHT / BOTTOM — onboarding card */}
-          {/* Mobile: pinned to bottom. Desktop: right column, vertically centered */}
-          <div className="shrink-0 w-full md:w-[420px] flex flex-col justify-end md:justify-center p-4 pb-6 md:p-10">
-            <div className="rounded-[28px] p-6 md:p-7"
-                 style={{ background: cardBg, border: cardBorder,
-                           backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
-                           boxShadow: '0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(139,92,246,0.1) inset' }}>
-
-              {/* Story — inside the card at top */}
-              <div className="mb-6 pb-5"
-                   style={{ borderBottom: '1px solid rgba(139,92,246,0.18)' }}>
-                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600,
-                             fontSize: 13.5, lineHeight: 1.65, color: 'rgba(255,255,255,0.88)', margin: 0 }}>
-                  <span style={{ color: '#f0abfc', fontWeight: 700 }}>Zuleima</span> &amp;{' '}
-                  <span style={{ color: '#c4b5fd', fontWeight: 700 }}>IMan</span> found each other across
-                  the world - her words in one language, his in another. Their hearts spoke fluently.
-                </p>
-                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400,
-                             fontSize: 11.5, lineHeight: 1.6, color: 'rgba(196,181,253,0.55)',
-                             marginTop: 7, marginBottom: 0 }}>
-                  Every message was a bridge. Zul was built so they could always speak the same language. 💕
-                </p>
-              </div>
-
-              {/* Heading */}
-              <h2 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 22,
-                            color: '#fff', margin: '0 0 3px', lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Start your private chat
-              </h2>
-              <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500,
-                           fontSize: 13, color: '#a78bfa', margin: '0 0 20px' }}>
-                No account needed - just you two.
-              </p>
-
-              {error && (
-                <div style={{ background: 'rgba(127,29,29,0.45)', border: '1px solid rgba(239,68,68,0.3)',
-                               borderRadius: 14, padding: '11px 15px', marginBottom: 14 }}>
-                  <p style={{ color: '#fca5a5', fontSize: 13, margin: 0, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{error}</p>
-                </div>
-              )}
-
-              {/* Name */}
-              <div style={{ marginBottom: 11 }}>
-                <label style={{ display: 'block', fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                 fontWeight: 700, fontSize: 10, letterSpacing: '0.13em',
-                                 color: '#a78bfa', textTransform: 'uppercase', marginBottom: 7 }}>
-                  Your name
-                </label>
-                <input
-                  value={setupName}
-                  onChange={(e) => setSetupName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && setupName.trim() && createRoom()}
-                  placeholder="e.g. IMan or Zuleima"
-                  style={{ width: '100%', boxSizing: 'border-box', borderRadius: 14,
-                            border: '1.5px solid rgba(124,58,237,0.32)',
-                            background: 'rgba(88,28,135,0.22)', padding: '13px 16px',
-                            fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500,
-                            fontSize: 14, color: '#fff', outline: 'none' }}
-                  onFocus={(e) => { e.target.style.borderColor = 'rgba(167,139,250,0.75)'; e.target.style.background = 'rgba(88,28,135,0.38)'; }}
-                  onBlur={(e) => { e.target.style.borderColor = 'rgba(124,58,237,0.32)'; e.target.style.background = 'rgba(88,28,135,0.22)'; }}
-                />
-              </div>
-
-              {/* Language */}
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontFamily: "'Plus Jakarta Sans', sans-serif",
-                                 fontWeight: 700, fontSize: 10, letterSpacing: '0.13em',
-                                 color: '#a78bfa', textTransform: 'uppercase', marginBottom: 7 }}>
-                  Your language
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <select
-                    value={setupLang}
-                    onChange={(e) => setSetupLang(e.target.value)}
-                    style={{ width: '100%', appearance: 'none', WebkitAppearance: 'none',
-                              borderRadius: 14, border: '1.5px solid rgba(124,58,237,0.32)',
-                              background: 'rgba(88,28,135,0.22)', padding: '13px 42px 13px 16px',
-                              fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 500,
-                              fontSize: 14, color: '#fff', outline: 'none', colorScheme: 'dark', cursor: 'pointer' }}
-                  >
-                    {LANGUAGES.map((l) => (
-                      <option key={l.code} value={l.code} style={{ background: '#1a0040', color: '#fff' }}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={16} style={{ position: 'absolute', right: 14, top: '50%',
-                    transform: 'translateY(-50%)', color: '#a78bfa', pointerEvents: 'none' }} />
-                </div>
-              </div>
-
-              {/* CTA */}
-              <button
-                onClick={() => { if (!setupName.trim()) { setError('Enter your name first'); return; } createRoom(); }}
-                disabled={loading}
-                style={{ width: '100%', borderRadius: 16, padding: '15px 24px',
-                          fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: 15,
-                          color: '#fff', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-                          background: 'linear-gradient(135deg, #6d28d9 0%, #9333ea 55%, #db2777 100%)',
-                          boxShadow: '0 6px 28px rgba(109,40,217,0.55), inset 0 1px 0 rgba(255,255,255,0.12)',
-                          opacity: loading ? 0.6 : 1, letterSpacing: '0.01em', marginBottom: 16 }}
-              >
-                {loading ? 'Creating room…' : '✦  Create My Private Room'}
-              </button>
-
-              {/* Partner hint */}
-              <div style={{ borderRadius: 14, padding: '13px 16px',
-                             background: 'rgba(88,28,135,0.18)',
-                             border: '1px solid rgba(124,58,237,0.2)' }}>
-                <p style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 12.5,
-                             color: '#e9d5ff', margin: '0 0 4px' }}>
-                  Got a link from your partner?
-                </p>
-                <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, fontSize: 12,
-                             color: '#a78bfa', lineHeight: 1.55, margin: 0 }}>
-                  Open their link - you'll land straight in the chat. Messages auto-translate to your language.
-                </p>
-              </div>
-
-              <p style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600,
-                           fontSize: 9.5, color: 'rgba(109,40,217,0.45)', textAlign: 'center',
-                           letterSpacing: '0.18em', marginTop: 18, marginBottom: 0 }}>
-                PRIVATE · ENCRYPTED · FREE
-              </p>
-
-              {isInstallable && (
-                <button
-                  onClick={triggerInstall}
-                  style={{ width: '100%', borderRadius: 14, padding: '12px 16px',
-                            marginTop: 14, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 600,
-                            fontSize: 12, color: '#fff', border: '1px solid rgba(167,139,250,0.4)',
-                            background: 'rgba(88,28,135,0.35)', cursor: 'pointer',
-                            transition: 'all 0.2s', display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', gap: 6 }}
-                  onMouseEnter={(e) => { e.target.style.background = 'rgba(88,28,135,0.55)'; e.target.style.borderColor = 'rgba(167,139,250,0.7)'; }}
-                  onMouseLeave={(e) => { e.target.style.background = 'rgba(88,28,135,0.35)'; e.target.style.borderColor = 'rgba(167,139,250,0.4)'; }}
+          {/* Language — slides in once name is ready */}
+          {nameReady && (
+            <div className="mb-4 zul-rise">
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your language</label>
+              <div className="relative">
+                <select
+                  value={setupLang}
+                  onChange={(e) => setSetupLang(e.target.value)}
+                  className="w-full appearance-none rounded-2xl border border-violet-700/40 bg-violet-950/40 px-4 py-3.5 pr-10 text-base text-white outline-none transition-colors focus:border-violet-500"
+                  style={{ colorScheme: 'dark' }}
                 >
-                  <Download size={14} /> Download App to Home Screen
-                </button>
-              )}
+                  {LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>{l.label}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-violet-400" />
+              </div>
             </div>
+          )}
+
+          {/* Avatar — slides in with language */}
+          {nameReady && (
+            <div className="mb-5 zul-rise" style={{ animationDelay: '60ms' }}>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Pick an avatar</label>
+              <div className="flex flex-wrap gap-2">
+                {EMOJIS.map((em) => (
+                  <button
+                    key={em}
+                    onClick={() => setSetupEmoji(em)}
+                    className={`h-10 w-10 rounded-2xl text-xl transition-all ${setupEmoji === em ? 'bg-violet-600/50 ring-2 ring-violet-400 scale-110' : 'bg-violet-900/25 hover:bg-violet-800/40'}`}
+                  >
+                    {em}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CTA */}
+          <button
+            onClick={() => { if (!setupName.trim()) { setError('Enter your name to continue'); return; } createRoom(); }}
+            disabled={!canCreate}
+            className={`w-full rounded-2xl py-4 text-base font-bold text-white transition-all ${canCreate ? 'zul-pulse-cta' : 'opacity-40 cursor-not-allowed'}`}
+            style={{ background: 'linear-gradient(135deg, #6d28d9 0%, #9333ea 55%, #c026d3 100%)', boxShadow: canCreate ? '0 8px 32px rgba(109,40,217,0.5)' : 'none' }}
+          >
+            {loading ? 'Creating room…' : 'Create Room →'}
+          </button>
+
+          {/* Feature pills */}
+          <div className="mt-4 flex items-center justify-center gap-3 text-[11px] text-violet-500">
+            <span>🔒 Private</span>
+            <span className="opacity-40">·</span>
+            <span>🌍 Translated</span>
+            <span className="opacity-40">·</span>
+            <span>⚡ Instant</span>
           </div>
+
+          {/* Partner hint */}
+          <div className="mt-4 rounded-2xl border border-violet-800/30 bg-violet-950/30 px-4 py-3 text-sm">
+            <p className="font-semibold text-violet-200">Have a link from your partner?</p>
+            <p className="mt-0.5 text-xs text-violet-500">Open it — you'll join their room directly and chat in your own language.</p>
+          </div>
+
+          {/* Install button */}
+          {!isInstalled && (isInstallable || isIOS) && (
+            <button
+              onClick={handleInstall}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-600/40 bg-violet-800/25 py-3 text-sm font-semibold text-violet-200 transition hover:bg-violet-800/40"
+            >
+              <Download size={14} /> 📲 Download App
+            </button>
+          )}
         </div>
       </div>
-      <InstallPrompt />
+      {showIOSInstall && <IOSInstallSheet onClose={() => setShowIOSInstall(false)} />}
       </>
     );
   }
@@ -759,61 +824,99 @@ export default function App() {
   // SETUP (partner joining via link)
   // ═══════════════════════════════════════════════════════════════════════════
   if (view === 'setup') {
+    const nameReady = setupName.trim().length >= 2;
+    const canJoin = nameReady && !loading;
+
     return (
-      <div className="min-h-[100dvh] bg-[#0a0018] flex flex-col">
-        <div className="relative h-40 shrink-0 overflow-hidden">
-          <img src={heroPhoto} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: 'center 35%' }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-purple-950/40 to-[#0a0018]" />
-          <div className="absolute inset-0 flex items-center justify-center gap-3">
-            <ZulLogo size={36} />
-            <span className="bg-gradient-to-r from-violet-300 to-fuchsia-300 bg-clip-text text-3xl font-black text-transparent">Zul</span>
-          </div>
+      <div className="relative min-h-dvh overflow-x-hidden bg-[#07001a] flex flex-col items-center justify-center px-4 py-10 pt-[max(2.5rem,env(safe-area-inset-top))]">
+        {/* Ambient glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-0 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-violet-700/20 blur-[100px]" />
         </div>
 
-        <div className="flex-1 px-5 py-6 max-w-sm mx-auto w-full">
-          <h2 className="text-xl font-bold text-white mb-1">You've been invited</h2>
-          <p className="text-sm text-purple-400 mb-6">Set up your profile to join the conversation.</p>
+        {/* Logo + invite message */}
+        <div className="relative z-10 mb-5 flex flex-col items-center gap-2 text-center">
+          <img src={zulLogo} alt="Zul" className="h-20 w-20 drop-shadow-xl" />
+          <h2 className="text-xl font-bold text-white">You've been invited</h2>
+          <p className="text-sm text-violet-400">Set up your profile to join the conversation</p>
+        </div>
 
-          {error && <div className="mb-4 rounded-xl bg-red-900/30 border border-red-500/40 px-4 py-3 text-sm text-red-300">{error}</div>}
+        {/* Form card */}
+        <div className="relative z-10 w-full max-w-sm rounded-[28px] border border-violet-700/30 bg-[#0d0120]/85 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
 
-          <div className="space-y-4">
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-purple-400">Your avatar</p>
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-500/30 bg-red-900/25 px-4 py-3 text-sm text-red-300">{error}</div>
+          )}
+
+          {/* Name */}
+          <div className="mb-4">
+            <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your name</label>
+            <div className="relative">
+              <input
+                value={setupName}
+                onChange={(e) => setSetupName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && canJoin && joinRoom()}
+                placeholder="Enter your name"
+                autoFocus
+                className="w-full rounded-2xl border bg-violet-950/40 px-4 py-3.5 text-base text-white outline-none placeholder:text-violet-600 transition-colors"
+                style={{ borderColor: nameReady ? 'rgba(167,139,250,0.6)' : 'rgba(124,58,237,0.3)' }}
+              />
+              {nameReady && (
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-violet-400 text-lg">✓</span>
+              )}
+            </div>
+          </div>
+
+          {/* Language */}
+          {nameReady && (
+            <div className="mb-4 zul-rise">
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Your language</label>
+              <div className="relative">
+                <select
+                  value={setupLang}
+                  onChange={(e) => setSetupLang(e.target.value)}
+                  className="w-full appearance-none rounded-2xl border border-violet-700/40 bg-violet-950/40 px-4 py-3.5 pr-10 text-base text-white outline-none transition-colors focus:border-violet-500"
+                  style={{ colorScheme: 'dark' }}
+                >
+                  {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+                </select>
+                <ChevronDown size={16} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-violet-400" />
+              </div>
+            </div>
+          )}
+
+          {/* Avatar */}
+          {nameReady && (
+            <div className="mb-5 zul-rise" style={{ animationDelay: '60ms' }}>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.15em] text-violet-400">Pick an avatar</label>
               <div className="flex flex-wrap gap-2">
                 {EMOJIS.map((em) => (
-                  <button key={em} onClick={() => setSetupEmoji(em)}
-                    className={`text-2xl rounded-xl p-2 transition ${setupEmoji === em ? 'bg-violet-600/40 ring-2 ring-violet-500' : 'bg-violet-900/20 hover:bg-violet-900/40'}`}>
+                  <button
+                    key={em}
+                    onClick={() => setSetupEmoji(em)}
+                    className={`h-10 w-10 rounded-2xl text-xl transition-all ${setupEmoji === em ? 'bg-violet-600/50 ring-2 ring-violet-400 scale-110' : 'bg-violet-900/25 hover:bg-violet-800/40'}`}
+                  >
                     {em}
                   </button>
                 ))}
               </div>
             </div>
+          )}
 
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-purple-400">Your name</label>
-              <input value={setupName} onChange={(e) => setSetupName(e.target.value)} placeholder="Your name"
-                className="w-full rounded-2xl border border-violet-700/40 bg-violet-900/20 px-4 py-3 text-sm text-white outline-none placeholder:text-purple-600 focus:border-violet-500 transition" />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-purple-400">Your language</label>
-              <div className="relative">
-                <select value={setupLang} onChange={(e) => setSetupLang(e.target.value)}
-                  className="w-full appearance-none rounded-2xl border border-violet-700/40 bg-violet-900/20 px-4 py-3 pr-10 text-sm text-white outline-none focus:border-violet-500 transition">
-                  {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-                </select>
-                <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-purple-400" />
-              </div>
-            </div>
-          </div>
-
-          <button onClick={joinRoom} disabled={loading || !setupName.trim()}
-            className="mt-7 w-full rounded-2xl bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 py-4 text-sm font-bold text-white shadow-lg shadow-violet-900/50 transition active:scale-[0.98] disabled:opacity-50">
-            {loading ? 'Joining…' : 'Enter Zul →'}
+          <button
+            onClick={joinRoom}
+            disabled={!canJoin}
+            className={`w-full rounded-2xl py-4 text-base font-bold text-white transition-all ${canJoin ? 'zul-pulse-cta' : 'opacity-40 cursor-not-allowed'}`}
+            style={{ background: 'linear-gradient(135deg, #6d28d9 0%, #9333ea 55%, #c026d3 100%)', boxShadow: canJoin ? '0 8px 32px rgba(109,40,217,0.5)' : 'none' }}
+          >
+            {loading ? 'Joining…' : 'Join Conversation →'}
           </button>
 
-          <p className="mt-4 text-center text-xs text-purple-600">Room: <span className="text-violet-400 font-mono font-bold">{roomCode}</span></p>
+          <p className="mt-4 text-center text-xs text-violet-600">
+            Room <span className="font-mono font-bold text-violet-400">{roomCode}</span>
+          </p>
         </div>
+        <div className="h-[env(safe-area-inset-bottom)]" />
       </div>
     );
   }
@@ -842,7 +945,7 @@ export default function App() {
 
         {/* Header */}
         <header className="shrink-0 flex items-center gap-3 border-b border-violet-900/50 bg-[#12002b] px-3.5 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4">
-          <button onClick={leaveRoom} className="md:hidden text-purple-400 hover:text-white transition">
+          <button onClick={leaveRoom} className="md:hidden -ml-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-purple-400 transition hover:bg-violet-900/30 hover:text-white">
             <ArrowLeft size={22} />
           </button>
 
@@ -869,10 +972,21 @@ export default function App() {
             </>
           )}
 
+          {!isInstalled && (isInstallable || isIOS) && (
+            <button
+              onClick={handleInstall}
+              title="Download Zul App"
+              className="shrink-0 flex h-9 items-center gap-1.5 rounded-full border border-violet-600/40 bg-violet-700/25 px-3 text-xs font-semibold text-violet-200 transition hover:bg-violet-700/45"
+            >
+              <Smartphone size={13} />
+              <span className="hidden sm:inline">Download App</span>
+            </button>
+          )}
           <span className="hidden shrink-0 rounded-full border border-purple-800/30 bg-purple-900/30 px-2 py-0.5 font-mono text-[11px] text-purple-400 sm:inline-flex">
             {roomCode}
           </span>
         </header>
+        {showIOSInstall && <IOSInstallSheet onClose={() => setShowIOSInstall(false)} />}
 
         {/* Share link banner (mobile, no partner yet) */}
         {!partner && shareLink && (
@@ -895,7 +1009,7 @@ export default function App() {
 
         {/* Messages area */}
         <section
-          className="flex-1 overflow-y-auto space-y-2 px-2.5 pb-3 pt-3 sm:px-4 sm:pt-4"
+          className="flex-1 overflow-y-auto overscroll-y-contain space-y-2 px-2.5 pb-3 pt-3 sm:px-4 sm:pt-4"
           style={{ backgroundImage: 'radial-gradient(ellipse at top, #1a0040 0%, #0a0018 70%)', backgroundAttachment: 'local' }}
         >
           {messages.length === 0 && !partnerTyping && (
@@ -1024,7 +1138,6 @@ export default function App() {
           </footer>
         )}
       </div>
-      <InstallPrompt />
     </div>
   );
 }

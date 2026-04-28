@@ -2,27 +2,29 @@ import ZulLogo from './ZulLogo.jsx';
 
 export default function About({ onClose }) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm space-y-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 p-4 overflow-y-auto">
+      <div className="bg-[#0d0120] border border-violet-800/40 rounded-2xl p-6 w-full max-w-sm space-y-4">
         <div className="flex items-center gap-3">
-          <ZulLogo size={40} />
+          <ZulLogo size={44} />
           <div>
             <h2 className="text-rose-50 font-bold text-lg">Zul</h2>
-            <p className="text-slate-400 text-xs">Two hearts. Two languages. One conversation.</p>
+            <p className="text-violet-400 text-xs">Auto Translate Messenger</p>
           </div>
         </div>
 
         <div className="text-sm text-slate-300 space-y-3">
-          <h3 className="text-rose-50 font-semibold">The Story</h3>
-          <p>The builder met Zuleima online. They didn't speak the same language. Translation apps got in the way every time they wanted to say something real.</p>
-          <p>So he built Zul. A private chatroom for two - where every message, every voice note, every caption automatically translates between your languages. Where you can actually be yourself, in your own words, and still be understood.</p>
-          <p className="text-pink-300 italic">Zul is yours now too.</p>
-          <p className="text-slate-500 text-xs">- With love, the builder</p>
+          <p>Zul is a private, real-time chat app that automatically translates every message between two languages — so you and your contact can always communicate naturally, in your own words.</p>
+          <ul className="space-y-2 text-violet-300">
+            <li>🌍 <span className="text-white font-medium">Auto-translation</span> — messages translate instantly as they arrive</li>
+            <li>🔒 <span className="text-white font-medium">Private rooms</span> — invite-only, no account required</li>
+            <li>🎙️ <span className="text-white font-medium">Voice & media</span> — send voice notes, photos, and files</li>
+            <li>⚡ <span className="text-white font-medium">Real-time</span> — see messages the moment they're sent</li>
+          </ul>
         </div>
 
         <button
           onClick={onClose}
-          className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-rose-50 rounded-xl text-sm transition-colors"
+          className="w-full py-2.5 bg-violet-800/40 hover:bg-violet-700/50 text-rose-50 rounded-xl text-sm transition-colors border border-violet-700/30"
         >
           Close
         </button>

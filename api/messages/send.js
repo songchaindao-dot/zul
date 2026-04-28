@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { translateWithDetection } from '../_lib/gemini.js';
+import { sendPush } from '../_lib/push.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
   // Find partner language for translation
   const { data: members } = await supabase
     .from('members')
-    .select('language, client_id')
+    .select('language, client_id, push_subscription')
     .eq('room_id', ctx.room_id);
 
   const partnerMember = members?.find((m) => m.client_id !== clientId);
@@ -122,4 +123,13 @@ export default async function handler(req, res) {
   if (error) return res.status(500).json({ error: error.message });
 
   res.json(msg);
+
+  // Non-blocking push notification to partner
+  if (partnerMember?.push_subscription && text) {
+    sendPush(partnerMember.push_subscription, {
+      title: 'Zul 💕',
+      body: text.slice(0, 120),
+      data: { url: `/?room=${room_code}&t=${secret_token}` },
+    }).catch(() => {});
+  }
 }
